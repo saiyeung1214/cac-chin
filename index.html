@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>宣中中文範文隨身聽</title>
+    <title>宣中 DSE 中文全方位學習平台（保3升4強化版）</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -90,12 +90,31 @@
         .eq-bar-1 { animation: equalize 0.8s infinite ease-in-out 0.1s; }
         .eq-bar-2 { animation: equalize 0.8s infinite ease-in-out 0.3s; }
         .eq-bar-3 { animation: equalize 0.8s infinite ease-in-out 0.5s; }
+
+        /* 閃卡 3D 翻轉特效 */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        .flipped {
+            transform: rotateY(180deg);
+        }
     </style>
 </head>
 <body class="bg-paper-light text-stone-800 dark:bg-ink-dark dark:text-stone-200 font-sans antialiased selection:bg-amber-900/20 dark:selection:bg-amber-500/30 transition-colors duration-300 min-h-screen flex flex-col">
 
     <!-- 頂部導航欄 Header -->
-    <header class="sticky top-0 z-30 bg-paper-light/90 dark:bg-ink-dark/90 backdrop-blur-md border-b border-paper-border dark:border-ink-border transition-colors duration-300">
+    <header class="sticky top-0 z-30 bg-paper-light/95 dark:bg-ink-dark/95 backdrop-blur-md border-b border-paper-border dark:border-ink-border transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
             
             <!-- 左側：手機版目錄按鈕 + 標題 -->
@@ -104,46 +123,51 @@
                     <i class="ph ph-list text-2xl"></i>
                 </button>
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-paper-accent dark:bg-ink-accent flex items-center justify-center text-white font-serif font-bold text-lg shadow-sm">
+                    <div class="w-9 h-9 rounded-xl bg-paper-accent dark:bg-ink-accent flex items-center justify-center text-white font-serif font-bold text-lg shadow-sm shrink-0">
                         宣
                     </div>
                     <div>
-                        <h1 class="font-serif font-bold text-base sm:text-lg leading-tight tracking-wide text-stone-900 dark:text-stone-100">
-                            宣中中文範文隨身聽
-                        </h1>
-                        <p class="text-[11px] text-stone-500 dark:text-stone-400 hidden sm:block">DSE 十二篇指定文言經典・隨時看與聽</p>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-serif font-bold text-base sm:text-lg leading-tight tracking-wide text-stone-900 dark:text-stone-100">
+                                宣中中文範文隨身聽
+                            </h1>
+                            <span class="hidden md:inline-block px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/15 text-amber-800 dark:bg-amber-400/20 dark:text-amber-300 border border-amber-500/30">
+                                保3升4強化版
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-stone-500 dark:text-stone-400 hidden sm:block">DSE 全方位溫習：12篇範文聽讀・高頻字詞閃卡・實用寫作速查</p>
                     </div>
                 </div>
             </div>
 
             <!-- 右側：控制面板（粵/普、字體大小、背誦遮罩、黑白模式） -->
-            <div class="flex items-center gap-1.5 sm:gap-2.5">
+            <div class="flex items-center gap-1.5 sm:gap-2">
                 
                 <!-- 廣東話 / 普通話 切換 -->
                 <div class="bg-stone-200/80 dark:bg-stone-800 p-1 rounded-xl flex items-center text-xs sm:text-sm font-medium border border-stone-300/50 dark:border-stone-700">
-                    <button id="langCantonese" onclick="setLanguage('zh-HK')" class="px-2.5 py-1 rounded-lg transition-all bg-white dark:bg-stone-700 text-paper-accent dark:text-ink-accent shadow-sm font-semibold">
+                    <button id="langCantonese" onclick="setLanguage('zh-HK')" class="px-2 sm:px-2.5 py-1 rounded-lg transition-all bg-white dark:bg-stone-700 text-paper-accent dark:text-ink-accent shadow-sm font-semibold">
                         廣東話
                     </button>
-                    <button id="langMandarin" onclick="setLanguage('zh-CN')" class="px-2.5 py-1 rounded-lg transition-all text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200">
+                    <button id="langMandarin" onclick="setLanguage('zh-CN')" class="px-2 sm:px-2.5 py-1 rounded-lg transition-all text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200">
                         普通話
                     </button>
                 </div>
 
                 <!-- 字體大小調節 -->
                 <div class="flex items-center bg-stone-200/80 dark:bg-stone-800 p-1 rounded-xl border border-stone-300/50 dark:border-stone-700">
-                    <button onclick="changeFontSize(-1)" class="w-7 h-7 sm:w-8 sm:h-7 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition text-xs font-bold" title="縮小字體">
+                    <button onclick="changeFontSize(-1)" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition text-xs font-bold" title="縮小字體">
                         A-
                     </button>
-                    <span id="fontSizeIndicator" class="text-xs px-1.5 text-stone-500 dark:text-stone-400 hidden md:inline-block select-none">中</span>
-                    <button onclick="changeFontSize(1)" class="w-7 h-7 sm:w-8 sm:h-7 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition text-sm font-bold" title="放大字體">
+                    <span id="fontSizeIndicator" class="text-xs px-1 text-stone-500 dark:text-stone-400 hidden md:inline-block select-none">中</span>
+                    <button onclick="changeFontSize(1)" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition text-sm font-bold" title="放大字體">
                         A+
                     </button>
                 </div>
 
-                <!-- 背誦遮罩模式按鈕 -->
+                <!-- 背誦遮罩模式按鈕 (僅於範文頁顯示) -->
                 <button id="reciteModeBtn" onclick="toggleReciteMode()" class="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-stone-300/80 dark:border-stone-700 hover:bg-stone-200/60 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 transition flex items-center gap-1.5 text-xs sm:text-sm font-medium" title="背誦遮罩模式：隱藏內文，點擊或朗讀時顯示">
                     <i class="ph ph-eye-slash text-lg" id="reciteIcon"></i>
-                    <span class="hidden md:inline" id="reciteLabel">背誦模式</span>
+                    <span class="hidden xl:inline" id="reciteLabel">背誦模式</span>
                 </button>
 
                 <!-- 黑/白模式切換按鈕 -->
@@ -152,16 +176,46 @@
                 </button>
             </div>
         </div>
+
+        <!-- 四大核心學習模組切換欄 Module Navigation Tabs -->
+        <div class="bg-stone-100/90 dark:bg-stone-900/90 border-t border-paper-border dark:border-ink-border">
+            <div class="max-w-7xl mx-auto px-2 sm:px-6 flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar py-1.5">
+                <button id="tabBtn-texts" onclick="switchTab('texts')" class="px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shrink-0 transition-all bg-paper-accent text-white dark:bg-ink-accent shadow-xs">
+                    <i class="ph-fill ph-book-open-text text-base"></i>
+                    <span>12篇範文聽讀</span>
+                </button>
+                <button id="tabBtn-matrix" onclick="switchTab('matrix')" class="px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-1.5 shrink-0 transition-all text-stone-600 dark:text-stone-400 hover:bg-stone-200/70 dark:hover:bg-stone-800">
+                    <i class="ph-fill ph-git-compare text-base"></i>
+                    <span>跨篇思維矩陣</span>
+                    <span class="px-1.5 py-0.2 text-[10px] rounded-full bg-paper-accent/15 text-paper-accent dark:bg-ink-accent/25 dark:text-ink-accent font-bold">升4關鍵</span>
+                </button>
+                <button id="tabBtn-vocab" onclick="switchTab('vocab')" class="px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-1.5 shrink-0 transition-all text-stone-600 dark:text-stone-400 hover:bg-stone-200/70 dark:hover:bg-stone-800">
+                    <i class="ph-fill ph-cards text-base"></i>
+                    <span>核心字詞閃卡</span>
+                    <span class="px-1.5 py-0.2 text-[10px] rounded-full bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold">保3必背</span>
+                </button>
+                <button id="tabBtn-practical" onclick="switchTab('practical')" class="px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-1.5 shrink-0 transition-all text-stone-600 dark:text-stone-400 hover:bg-stone-200/70 dark:hover:bg-stone-800">
+                    <i class="ph-fill ph-file-text text-base"></i>
+                    <span>卷二實用文速查</span>
+                </button>
+                <button id="tabBtn-quiz" onclick="switchTab('quiz')" class="px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-1.5 shrink-0 transition-all text-stone-600 dark:text-stone-400 hover:bg-stone-200/70 dark:hover:bg-stone-800">
+                    <i class="ph-fill ph-exam text-base"></i>
+                    <span>保3升4自測挑戰</span>
+                </button>
+            </div>
+        </div>
     </header>
 
-    <!-- 主體內容區 Main Layout -->
-    <div class="flex-1 max-w-7xl w-full mx-auto flex relative pb-28">
+    <!-- ========================================== -->
+    <!-- 模組 1：12篇範文精讀與隨身聽 (預設顯示)      -->
+    <!-- ========================================== -->
+    <div id="view-texts" class="flex-1 max-w-7xl w-full mx-auto flex relative pb-28">
         
         <!-- 手機版側邊欄遮罩 -->
         <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 hidden lg:hidden transition-opacity"></div>
 
         <!-- 左側目錄欄 Sidebar -->
-        <aside id="sidebar" class="fixed lg:sticky top-16 left-0 z-40 w-72 sm:w-80 h-[calc(100vh-4rem)] bg-paper-light dark:bg-ink-dark border-r border-paper-border dark:border-ink-border flex flex-col transition-transform duration-300 -translate-x-full lg:translate-x-0 shrink-0">
+        <aside id="sidebar" class="fixed lg:sticky top-28 left-0 z-40 w-72 sm:w-80 h-[calc(100vh-7rem)] bg-paper-light dark:bg-ink-dark border-r border-paper-border dark:border-ink-border flex flex-col transition-transform duration-300 -translate-x-full lg:translate-x-0 shrink-0">
             
             <!-- 搜尋與統計欄 -->
             <div class="p-3.5 border-b border-paper-border dark:border-ink-border space-y-2.5">
@@ -208,6 +262,10 @@
                             </span>
                         </div>
                         <div class="flex items-center gap-2">
+                            <button onclick="jumpToArticleVocab()" class="px-3 py-1 rounded-xl text-xs font-medium bg-amber-500/15 text-amber-800 dark:bg-amber-400/20 dark:text-amber-300 border border-amber-500/30 flex items-center gap-1 hover:opacity-90 transition">
+                                <i class="ph-fill ph-cards text-sm"></i>
+                                <span>本篇字詞卡</span>
+                            </button>
                             <button id="markCompletedBtn" onclick="toggleMarkCompleted()" class="px-3 py-1 rounded-xl text-xs font-medium border border-stone-300 dark:border-stone-700 flex items-center gap-1.5 hover:bg-stone-100 dark:hover:bg-stone-800 transition">
                                 <i id="markCompletedIcon" class="ph ph-check-circle text-base"></i>
                                 <span id="markCompletedText">標記已溫習</span>
@@ -226,15 +284,26 @@
                         《論語》
                     </p>
 
-                    <!-- 題解 / 核心主旨摺疊區 -->
-                    <div class="bg-stone-100/80 dark:bg-stone-800/60 rounded-xl p-3.5 sm:p-4 border border-stone-200/70 dark:border-stone-700/60">
-                        <div class="flex items-center gap-1.5 text-xs font-bold text-paper-accent dark:text-ink-accent mb-1">
-                            <i class="ph-fill ph-lightbulb-filament text-sm"></i>
-                            <span>DSE 核心主旨與溫習重點</span>
+                    <!-- 題解 / 核心主旨與升4作法重點區 -->
+                    <div class="bg-stone-100/80 dark:bg-stone-800/60 rounded-xl p-3.5 sm:p-4 border border-stone-200/70 dark:border-stone-700/60 space-y-2.5">
+                        <div>
+                            <div class="flex items-center gap-1.5 text-xs font-bold text-paper-accent dark:text-ink-accent mb-1">
+                                <i class="ph-fill ph-lightbulb-filament text-sm"></i>
+                                <span>DSE 核心主旨（保3必背）</span>
+                            </div>
+                            <p id="articleSummary" class="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed">
+                                <!-- JS 動態載入 -->
+                            </p>
                         </div>
-                        <p id="articleSummary" class="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed">
-                            <!-- JS 動態載入 -->
-                        </p>
+                        <div class="pt-2 border-t border-stone-200/80 dark:border-stone-700/70">
+                            <div class="flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-400 mb-1">
+                                <i class="ph-fill ph-sparkle text-sm"></i>
+                                <span>寫作手法與升 4 奪分關鍵</span>
+                            </div>
+                            <p id="articleTechnique" class="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed">
+                                <!-- JS 動態載入 -->
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -276,7 +345,7 @@
 
                     <!-- 頁尾版權宣告 Footer -->
                     <footer class="pt-6 pb-2 border-t border-paper-border dark:border-ink-border text-center text-xs text-stone-500 dark:text-stone-400 space-y-1">
-                        <p class="font-serif font-semibold text-stone-700 dark:text-stone-300">宣中中文範文隨身聽</p>
+                        <p class="font-serif font-semibold text-stone-700 dark:text-stone-300">宣中中文範文隨身聽（DSE 保3升4全方位學習平台）</p>
                         <p>
                             版權所有：CAC LAWSIR ｜ 電郵：<a href="mailto:lsy@cactm.edu.hk" class="text-paper-accent dark:text-ink-accent hover:underline font-medium">lsy@cactm.edu.hk</a>
                         </p>
@@ -284,6 +353,428 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 新增模組：範文「跨篇對比思維矩陣」(升4關鍵)  -->
+    <!-- ========================================== -->
+    <div id="view-matrix" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6 pb-28">
+        <!-- 頂部介紹與分類篩選 -->
+        <div class="bg-paper-card dark:bg-ink-card rounded-2xl p-5 sm:p-6 border border-paper-border dark:border-ink-border shadow-xs mb-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex flex-wrap items-center gap-2 mb-1">
+                        <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-paper-accent/10 dark:bg-ink-accent/20 text-paper-accent dark:text-ink-accent">卷一甲部・跨篇比較長題目鷹架</span>
+                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-500/15 text-amber-800 dark:text-amber-300">攻克 4-6 分高階題</span>
+                    </div>
+                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">
+                        12 篇範文「跨篇對比思維矩陣」（主題思想 × 寫作手法）
+                    </h2>
+                    <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+                        DSE 範文長題目極常考核跨篇比較。點擊下方專題，即時掌握各篇的「相同點」、「相異點」及考評局標準評分標註詞。
+                    </p>
+                </div>
+
+                <!-- 篩選：全部 / 主題對比 / 寫作手法對比 -->
+                <div class="flex items-center gap-1.5 bg-stone-100 dark:bg-stone-800 p-1 rounded-xl border border-stone-200 dark:border-stone-700 self-start">
+                    <button id="matrixCat-all" onclick="filterMatrixCategory('all')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-paper-accent text-white dark:bg-ink-accent transition">全部專題</button>
+                    <button id="matrixCat-theme" onclick="filterMatrixCategory('主題對比')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-200/60 transition">主題對比</button>
+                    <button id="matrixCat-tech" onclick="filterMatrixCategory('寫作手法對比')" class="px-3 py-1.5 rounded-lg text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-200/60 transition">寫作手法對比</button>
+                </div>
+            </div>
+
+            <!-- 專題選擇器按鈕列 -->
+            <div id="matrixTopicSelector" class="flex flex-wrap gap-2 mt-5 pt-4 border-t border-paper-border dark:border-ink-border">
+                <!-- JS 動態載入 -->
+            </div>
+        </div>
+
+        <!-- 跨篇比較詳情主區 -->
+        <div id="matrixDetailContainer" class="space-y-6">
+            <!-- JS 動態渲染：參照篇章、評分標註詞、相同點、相異點對照表、實戰擬題示範 -->
+        </div>
+
+        <footer class="mt-12 pt-6 border-t border-paper-border dark:border-ink-border text-center text-xs text-stone-500 dark:text-stone-400 space-y-1">
+            <p class="font-serif font-semibold text-stone-700 dark:text-stone-300">宣中中文範文隨身聽（DSE 保3升4全方位學習平台）</p>
+            <p>版權所有：CAC LAWSIR ｜ 電郵：<a href="mailto:lsy@cactm.edu.hk" class="text-paper-accent dark:text-ink-accent hover:underline font-medium">lsy@cactm.edu.hk</a></p>
+        </footer>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 模組 2：DSE 核心字詞解釋閃卡庫 (保3必背)     -->
+    <!-- ========================================== -->
+    <div id="view-vocab" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6 pb-28">
+        
+        <!-- 頂部介紹與篩選器 -->
+        <div class="bg-paper-card dark:bg-ink-card rounded-2xl p-5 sm:p-6 border border-paper-border dark:border-ink-border shadow-xs mb-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-paper-accent/10 dark:bg-ink-accent/20 text-paper-accent dark:text-ink-accent">卷一甲部・穩奪字詞分</span>
+                        <span id="vocabMasteredCount" class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">已掌握 0 張</span>
+                    </div>
+                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">
+                        12 篇範文高頻字詞閃卡庫（一字多義・通假・詞類活用）
+                    </h2>
+                    <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+                        點擊卡片即可翻面查看考評局標準解釋與詞性，亦可點擊喇叭朗讀例句。
+                    </p>
+                </div>
+
+                <!-- 篩選控制 -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <select id="vocabFilterSelect" onchange="filterVocabByArticle(this.value)" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-stone-100 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-paper-accent">
+                        <option value="all">全部 12 篇範文重點字詞</option>
+                        <!-- JS 動態載入各篇選項 -->
+                    </select>
+                    <button onclick="toggleVocabViewMode()" id="vocabModeToggleBtn" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-paper-accent dark:bg-ink-accent text-white flex items-center gap-1.5 shadow-xs hover:opacity-90 transition">
+                        <i class="ph-fill ph-arrows-In-cardinal text-base"></i>
+                        <span id="vocabModeToggleText">切換大卡專注模式</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 專注單卡翻轉模式 (預設隱藏，可切換) -->
+        <div id="vocabFocusContainer" class="hidden max-w-xl mx-auto my-6">
+            <div class="text-center text-xs text-stone-500 dark:text-stone-400 mb-3 flex items-center justify-between px-2">
+                <span id="focusCardCounter">第 1 / 48 張</span>
+                <span>點擊卡片翻面・空白鍵亦可翻轉</span>
+            </div>
+
+            <div onclick="flipFocusCard()" class="perspective-1000 cursor-pointer h-72 sm:h-80 w-full select-none">
+                <div id="focusCardInner" class="transform-style-3d relative w-full h-full">
+                    <!-- 正面：題目與文句 -->
+                    <div class="backface-hidden absolute inset-0 bg-paper-card dark:bg-ink-card rounded-3xl p-6 sm:p-8 border-2 border-paper-border dark:border-ink-border shadow-md flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span id="focusCardArticle" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300">《論語》</span>
+                            <span id="focusCardType" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-amber-500/15 text-amber-800 dark:text-amber-300">古今異義</span>
+                        </div>
+                        <div class="text-center my-auto space-y-3">
+                            <div class="text-xs text-stone-400">試解釋以下紅字在文中的意思：</div>
+                            <p id="focusCardSentence" class="font-serif text-lg sm:text-2xl text-stone-800 dark:text-stone-100 leading-relaxed"></p>
+                        </div>
+                        <div class="text-center text-xs text-paper-accent dark:text-ink-accent font-medium flex items-center justify-center gap-1">
+                            <i class="ph ph-hand-tap"></i> 點擊翻開標準解釋
+                        </div>
+                    </div>
+
+                    <!-- 背面：標準答案 -->
+                    <div class="backface-hidden rotate-y-180 absolute inset-0 bg-amber-50/95 dark:bg-stone-800 rounded-3xl p-6 sm:p-8 border-2 border-paper-accent dark:border-ink-accent shadow-md flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-paper-accent dark:text-ink-accent">考評局常考標準答案</span>
+                            <button onclick="event.stopPropagation(); speakCurrentFocusVocab()" class="p-1.5 rounded-lg bg-white/80 dark:bg-stone-700 text-paper-accent dark:text-ink-accent hover:scale-105 transition" title="朗讀例句與解釋">
+                                <i class="ph-fill ph-speaker-high text-base"></i>
+                            </button>
+                        </div>
+                        <div class="text-center my-auto space-y-2">
+                            <div id="focusCardWord" class="font-serif text-2xl sm:text-3xl font-bold text-paper-accent dark:text-ink-accent"></div>
+                            <div id="focusCardMeaning" class="text-base sm:text-xl font-bold text-stone-900 dark:text-stone-100"></div>
+                            <p id="focusCardNote" class="text-xs sm:text-sm text-stone-600 dark:text-stone-300 pt-2"></p>
+                        </div>
+                        <div class="flex items-center justify-center gap-3">
+                            <button onclick="event.stopPropagation(); toggleVocabMastered(currentFocusVocabList[currentFocusVocabIndex].id)" id="focusMasterBtn" class="px-4 py-1.5 rounded-xl text-xs font-bold border border-emerald-600 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white transition">
+                                標記「已熟記」
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 專注卡導航按鈕 -->
+            <div class="flex items-center justify-between gap-4 mt-5">
+                <button onclick="moveFocusCard(-1)" class="flex-1 py-2.5 px-4 rounded-xl bg-paper-card dark:bg-ink-card border border-paper-border dark:border-ink-border hover:border-paper-accent font-medium text-sm flex items-center justify-center gap-1.5">
+                    <i class="ph ph-caret-left"></i> 上一張
+                </button>
+                <button onclick="shuffleFocusCards()" class="py-2.5 px-4 rounded-xl bg-stone-200/70 dark:bg-stone-800 hover:bg-stone-300/70 text-xs sm:text-sm font-medium flex items-center gap-1.5">
+                    <i class="ph ph-shuffle"></i> 隨機洗牌
+                </button>
+                <button onclick="moveFocusCard(1)" class="flex-1 py-2.5 px-4 rounded-xl bg-paper-card dark:bg-ink-card border border-paper-border dark:border-ink-border hover:border-paper-accent font-medium text-sm flex items-center justify-center gap-1.5">
+                    下一張 <i class="ph ph-caret-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 網格閃卡模式 (預設顯示) -->
+        <div id="vocabGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- 由 JS 動態渲染 -->
+        </div>
+
+        <!-- 頁尾版權 -->
+        <footer class="mt-12 pt-6 border-t border-paper-border dark:border-ink-border text-center text-xs text-stone-500 dark:text-stone-400 space-y-1">
+            <p class="font-serif font-semibold text-stone-700 dark:text-stone-300">宣中中文範文隨身聽（DSE 保3升4全方位學習平台）</p>
+            <p>版權所有：CAC LAWSIR ｜ 電郵：<a href="mailto:lsy@cactm.edu.hk" class="text-paper-accent dark:text-ink-accent hover:underline font-medium">lsy@cactm.edu.hk</a></p>
+        </footer>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 模組 3：卷二實用寫作格式與升4見解論證速查    -->
+    <!-- ========================================== -->
+    <div id="view-practical" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-6 pb-28">
+        
+        <div class="bg-paper-card dark:bg-ink-card rounded-2xl p-5 sm:p-6 border border-paper-border dark:border-ink-border shadow-xs mb-6">
+            <div class="flex flex-wrap items-center gap-2 mb-1">
+                <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-paper-accent/10 dark:bg-ink-accent/20 text-paper-accent dark:text-ink-accent">卷二乙部・實用寫作 (佔全卷 30%)</span>
+                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">保3零失誤・升4拓論點</span>
+            </div>
+            <h2 class="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">
+                實用寫作 5 大文類格式範本 + 「整合拓展・見解論證」萬用框架
+            </h2>
+            <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+                點擊下方文類標籤，即時檢視標準格式位置、常犯扣分陷阱及考場交卷前自檢清單（Checklist）。
+            </p>
+
+            <!-- 5大實用文切換按鈕 -->
+            <div id="practicalTypeSelector" class="flex flex-wrap gap-2 mt-4">
+                <!-- JS 動態載入 -->
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- 左側：標準格式視覺化範本與語氣要求 -->
+            <div class="lg:col-span-7 space-y-6">
+                <div class="bg-paper-card dark:bg-ink-card rounded-2xl p-5 sm:p-6 border border-paper-border dark:border-ink-border shadow-xs">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="pracFormatTitle" class="font-serif text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100">書信（公函 / 私函）標準格式</h3>
+                        <button onclick="speakPracticalGuide()" class="px-3 py-1 rounded-xl text-xs font-semibold bg-paper-accent/10 dark:bg-ink-accent/20 text-paper-accent dark:text-ink-accent flex items-center gap-1 hover:opacity-80 transition">
+                            <i class="ph-fill ph-speaker-high"></i> 朗讀要點
+                        </button>
+                    </div>
+
+                    <!-- 模擬稿紙框 -->
+                    <div id="pracTemplateBox" class="bg-stone-50 dark:bg-stone-900/90 rounded-xl p-4 sm:p-6 border-2 border-dashed border-stone-300 dark:border-stone-700 font-serif text-sm sm:text-base space-y-3 leading-relaxed">
+                        <!-- JS 動態載入格式樣板 -->
+                    </div>
+
+                    <!-- 語氣與得體要訣 -->
+                    <div class="mt-5 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                        <div class="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5 mb-1.5">
+                            <i class="ph-fill ph-warning-circle text-base"></i>
+                            <span>行文語氣與常犯扣分陷阱</span>
+                        </div>
+                        <p id="pracToneNote" class="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側：交卷前防扣分 Checklist + 升4見解論證公式 -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- 交卷前 Checklist -->
+                <div class="bg-paper-card dark:bg-ink-card rounded-2xl p-5 sm:p-6 border border-paper-border dark:border-ink-border shadow-xs">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                            <i class="ph-fill ph-check-square-offset text-paper-accent dark:text-ink-accent text-xl"></i>
+                            <span>交卷前 30 秒格式自檢清單</span>
+                        </h3>
+                        <button onclick="resetPracChecklist()" class="text-xs text-stone-400 hover:text-paper-accent">重設</button>
+                    </div>
+                    <div id="pracChecklistContainer" class="space-y-2.5">
+                        <!-- JS 動態生成可勾選項目 -->
+                    </div>
+                </div>
+
+                <!-- 升 4 必備：見解論證四步推論快速口訣 -->
+                <div class="bg-paper-card dark:bg-ink-card rounded-2xl p-5 sm:p-6 border border-paper-border dark:border-ink-border shadow-xs space-y-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-paper-accent text-white dark:bg-ink-accent">升 4 殺手鐧</span>
+                            <h3 class="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100">「見解論證」四步推論心法</h3>
+                        </div>
+                        <a href="#reasoningGeneratorSection" class="text-xs font-bold text-paper-accent dark:text-ink-accent hover:underline flex items-center gap-0.5">
+                            <span>前往生成器</span>
+                            <i class="ph-bold ph-arrow-down"></i>
+                        </a>
+                    </div>
+                    <p class="text-xs text-stone-500 dark:text-stone-400">
+                        切忌只提出口號式建議（如「學校應舉辦閱讀日，因為很有用」）。必須緊扣以下四步邏輯鏈推進：
+                    </p>
+                    <div class="space-y-2 text-xs sm:text-sm">
+                        <div class="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800/80 border-l-4 border-rose-600">
+                            <div class="font-bold text-stone-900 dark:text-stone-100">① 痛點／現況（為何要做？）</div>
+                            <div class="text-stone-600 dark:text-stone-300 mt-0.5">指出目前問題癥結或對象局限（如：時間不足、流於單向說教）。</div>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800/80 border-l-4 border-amber-600">
+                            <div class="font-bold text-stone-900 dark:text-stone-100">② 具體措施（時、地、人、活動細節）</div>
+                            <div class="text-stone-600 dark:text-stone-300 mt-0.5">交代誰主辦、何時辦、如何進行，確保具高度可行性。</div>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800/80 border-l-4 border-sky-600">
+                            <div class="font-bold text-stone-900 dark:text-stone-100">③ 針對性說明（措施如何解決痛點？）</div>
+                            <div class="text-stone-600 dark:text-stone-300 mt-0.5">扣連對象心理與特質，解釋為何此形式能對症下藥、吸引參與。</div>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-stone-100 dark:bg-stone-800/80 border-l-4 border-emerald-600">
+                            <div class="font-bold text-stone-900 dark:text-stone-100">④ 深遠成效（個人短期 ＋ 集體長遠）</div>
+                            <div class="text-stone-600 dark:text-stone-300 mt-0.5">由個人獲益推展至校園風氣或社會文化傳承，昇華論證層次。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- 新增：實用寫作「見解論證四步推論生成器」(升 4 核心鷹架) -->
+        <!-- ======================================================= -->
+        <div id="reasoningGeneratorSection" class="mt-8 bg-paper-card dark:bg-ink-card rounded-2xl p-5 sm:p-7 border-2 border-paper-accent/30 dark:border-ink-accent/40 shadow-sm space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-paper-border dark:border-ink-border pb-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-paper-accent text-white dark:bg-ink-accent">升 4 核心鷹架</span>
+                        <span class="text-xs font-semibold text-amber-700 dark:text-amber-400">告別空泛口號・自動合成高分論證段落</span>
+                    </div>
+                    <h3 class="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">
+                        實用寫作「見解論證」四步推論生成器
+                    </h3>
+                    <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+                        點選下方常考題目情境載入滿分示範，或直接在四步格內修改字句，一鍵複製並朗讀合成後的完整論證段落！
+                    </p>
+                </div>
+
+                <!-- 流程圖公式標示 -->
+                <div class="flex items-center gap-1 text-[11px] sm:text-xs font-bold bg-stone-100 dark:bg-stone-800 px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 shrink-0">
+                    <span class="text-rose-700 dark:text-rose-400">①痛點現況</span>
+                    <i class="ph-bold ph-arrow-right text-stone-400"></i>
+                    <span class="text-amber-700 dark:text-amber-400">②具體措施</span>
+                    <i class="ph-bold ph-arrow-right text-stone-400"></i>
+                    <span class="text-sky-700 dark:text-sky-400">③針對說明</span>
+                    <i class="ph-bold ph-arrow-right text-stone-400"></i>
+                    <span class="text-emerald-700 dark:text-emerald-400">④深遠成效</span>
+                </div>
+            </div>
+
+            <!-- 題目情境預設選擇器 -->
+            <div>
+                <div class="text-xs font-bold text-stone-500 dark:text-stone-400 mb-2 flex items-center gap-1.5">
+                    <i class="ph-fill ph-Bookmarks text-paper-accent dark:text-ink-accent"></i>
+                    <span>第一步：點選 DSE 常考題目情境（點擊載入高分推論範本）：</span>
+                </div>
+                <div id="scenarioButtonsContainer" class="flex flex-wrap gap-2">
+                    <!-- JS 動態載入情境按鈕 -->
+                </div>
+            </div>
+
+            <!-- 四步填空互動編輯區 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Step 1: 痛點／現況 -->
+                <div class="p-4 rounded-xl bg-rose-500/5 dark:bg-rose-500/10 border border-rose-500/25 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs sm:text-sm font-bold text-rose-800 dark:text-rose-300 flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-full bg-rose-600 text-white text-xs flex items-center justify-center">1</span>
+                            <span>痛點／現況（點出問題癥結）</span>
+                        </label>
+                        <span class="text-[11px] text-stone-400">引出需要</span>
+                    </div>
+                    <textarea id="stepInput1" oninput="updateGeneratedParagraph()" rows="3" class="w-full p-2.5 rounded-lg bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-rose-500" placeholder="例如：現時同學課業繁重，且認為傳統文化枯燥乏味，缺乏主動接觸的誘因……"></textarea>
+                </div>
+
+                <!-- Step 2: 具體措施（時地人活動） -->
+                <div class="p-4 rounded-xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/25 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs sm:text-sm font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-full bg-amber-600 text-white text-xs flex items-center justify-center">2</span>
+                            <span>具體措施（時、地、人、活動形式）</span>
+                        </label>
+                        <span class="text-[11px] text-stone-400">具體可行</span>
+                    </div>
+                    <textarea id="stepInput2" oninput="updateGeneratedParagraph()" rows="3" class="w-full p-2.5 rounded-lg bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="例如：學生會可於下學期初在禮堂舉辦「文化體驗市集」，邀請導師及同學設置書法、茶藝及漢服試穿攤位……"></textarea>
+                </div>
+
+                <!-- Step 3: 針對性說明 -->
+                <div class="p-4 rounded-xl bg-sky-500/5 dark:bg-sky-500/10 border border-sky-500/25 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs sm:text-sm font-bold text-sky-800 dark:text-sky-300 flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-full bg-sky-600 text-white text-xs flex items-center justify-center">3</span>
+                            <span>針對性說明（為何此措施能解決痛點？）</span>
+                        </label>
+                        <span class="text-[11px] text-stone-400">扣連心理</span>
+                    </div>
+                    <textarea id="stepInput3" oninput="updateGeneratedParagraph()" rows="3" class="w-full p-2.5 rounded-lg bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="例如：互動攤位打破單向講授的沉悶，配合同儕結伴參與及打卡分享，能大大降低參與門檻，寓教於樂……"></textarea>
+                </div>
+
+                <!-- Step 4: 深遠成效（個人／集體） -->
+                <div class="p-4 rounded-xl bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/25 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs sm:text-sm font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-full bg-emerald-600 text-white text-xs flex items-center justify-center">4</span>
+                            <span>深遠成效（個人短期獲益 ＋ 集體長遠影響）</span>
+                        </label>
+                        <span class="text-[11px] text-stone-400">雙層昇華</span>
+                    </div>
+                    <textarea id="stepInput4" oninput="updateGeneratedParagraph()" rows="3" class="w-full p-2.5 rounded-lg bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="例如：短期而言能加深同學對傳統美學的體會並紓緩壓力；長遠更能營造濃厚校園文化氛圍，達到薪火相傳之效。"></textarea>
+                </div>
+            </div>
+
+            <!-- 過渡連接詞百寶庫 (Transition Connectors Bank) -->
+            <div class="p-4 rounded-xl bg-stone-100/90 dark:bg-stone-800/70 border border-stone-200 dark:border-stone-700 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5">
+                        <i class="ph-fill ph-magic-wand text-paper-accent dark:text-ink-accent"></i>
+                        <span>升 4 萬用「過渡連接詞庫」（點擊詞語即可複製使用）：</span>
+                    </span>
+                </div>
+                <div id="connectorChipsContainer" class="flex flex-wrap gap-1.5">
+                    <!-- JS 動態載入連接詞標籤 -->
+                </div>
+            </div>
+
+            <!-- 即時合成預覽與操作 -->
+            <div class="p-5 rounded-2xl bg-amber-50/70 dark:bg-stone-900 border-2 border-paper-accent/40 dark:border-ink-accent/40 space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-paper-accent dark:text-ink-accent">✨ 四步合成高分「見解論證」段落預覽</span>
+                        <span id="generatedWordCount" class="text-[11px] px-2 py-0.5 rounded bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-300">約 0 字</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="speakGeneratedReasoning()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-300 transition flex items-center gap-1">
+                            <i class="ph-fill ph-speaker-high"></i> 朗讀示範
+                        </button>
+                        <button onclick="copyGeneratedReasoning()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-paper-accent dark:bg-ink-accent text-white hover:opacity-90 transition flex items-center gap-1 shadow-xs">
+                            <i class="ph-fill ph-copy"></i> 複製完整段落
+                        </button>
+                    </div>
+                </div>
+                <p id="generatedParagraphPreview" class="font-serif text-sm sm:text-base text-stone-800 dark:text-stone-100 leading-loose select-all"></p>
+            </div>
+        </div>
+
+        <footer class="mt-12 pt-6 border-t border-paper-border dark:border-ink-border text-center text-xs text-stone-500 dark:text-stone-400 space-y-1">
+            <p class="font-serif font-semibold text-stone-700 dark:text-stone-300">宣中中文範文隨身聽（DSE 保3升4全方位學習平台）</p>
+            <p>版權所有：CAC LAWSIR ｜ 電郵：<a href="mailto:lsy@cactm.edu.hk" class="text-paper-accent dark:text-ink-accent hover:underline font-medium">lsy@cactm.edu.hk</a></p>
+        </footer>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 模組 4：保3升4 互動快問快答自測挑戰          -->
+    <!-- ========================================== -->
+    <div id="view-quiz" class="hidden flex-1 max-w-3xl w-full mx-auto px-4 sm:px-6 pt-6 pb-28">
+        <div class="bg-paper-card dark:bg-ink-card rounded-2xl p-5 sm:p-8 border border-paper-border dark:border-ink-border shadow-xs">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-paper-border dark:border-ink-border">
+                <div>
+                    <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-paper-accent/10 dark:bg-ink-accent/20 text-paper-accent dark:text-ink-accent">DSE 實戰自測</span>
+                    <h2 class="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100 mt-1">
+                        保 3 升 4 範文字詞與文意快問快答
+                    </h2>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right">
+                        <div class="text-[11px] text-stone-400">累積得分</div>
+                        <div id="quizScoreDisplay" class="text-lg font-bold text-paper-accent dark:text-ink-accent">0 / 0</div>
+                    </div>
+                    <button onclick="startNewQuizRound()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-stone-200/80 dark:bg-stone-800 hover:bg-stone-300 transition flex items-center gap-1">
+                        <i class="ph ph-arrows-clockwise"></i> 重新抽題
+                    </button>
+                </div>
+            </div>
+
+            <!-- 題目區 -->
+            <div id="quizQuestionBox" class="py-6 space-y-5">
+                <!-- JS 動態載入 -->
+            </div>
+        </div>
+
+        <footer class="mt-12 pt-6 border-t border-paper-border dark:border-ink-border text-center text-xs text-stone-500 dark:text-stone-400 space-y-1">
+            <p class="font-serif font-semibold text-stone-700 dark:text-stone-300">宣中中文範文隨身聽（DSE 保3升4全方位學習平台）</p>
+            <p>版權所有：CAC LAWSIR ｜ 電郵：<a href="mailto:lsy@cactm.edu.hk" class="text-paper-accent dark:text-ink-accent hover:underline font-medium">lsy@cactm.edu.hk</a></p>
+        </footer>
     </div>
 
     <!-- 底部常駐語音播放控制列 Sticky Audio Player -->
@@ -368,6 +859,7 @@
                 author: "《論語》",
                 dynasty: "先秦",
                 summary: "透過孔子的言論，闡明儒家「仁」、「孝」及「君子」三大核心概念：仁者安貧樂道、克己復禮、殺身成仁；行孝須心存敬意、禮待父母、幾諫無怨；君子則重義輕利、言行一致、內省不疚、成人之美。",
+                technique: "【語錄體】言簡意賅；善用【對比】（如仁者安仁 vs 知者利仁；君子坦蕩蕩 vs 小人長戚戚；今之孝者能養 vs 犬馬皆能有養）突出仁孝與君子之境界；並針對不同弟子（顏淵、孟懿子、子游、司馬牛）展現【因材施教】。",
                 paragraphs: [
                     { subheading: "【論仁】", text: "1. 子曰：「不仁者，不可以久處約，不可以長處樂。仁者安仁，知者利仁。」（《里仁》第四）" },
                     { text: "2. 子曰：「富與貴，是人之所欲也；不以其道得之，不處也。貧與賤，是人之所惡也；不以其道得之，不去也。君子去仁，惡乎成名？君子無終食之間違仁，造次必於是，顛沛必於是。」（《里仁》第四）" },
@@ -393,6 +885,7 @@
                 author: "孟子",
                 dynasty: "先秦",
                 summary: "以「魚」與「熊掌」設喻，引出「生」與「義」不可兼得時當「舍生取義」的論點。文中藉「一簞食、一豆羹」與「萬鍾之祿」作對比，勸勉世人切勿因物慾與名利而喪失羞惡本心。",
+                technique: "善用【比喻論證】（以魚與熊掌設喻引出舍生取義）及【正反對比論證】（行道之人/乞人不屑受嘑爾蹴爾之食 vs 士人見萬鍾則不辯禮義而受之；「鄉為」與「今為」對比），氣勢磅礴，層層遞進。",
                 paragraphs: [
                     { text: "孟子曰：「魚，我所欲也，熊掌，亦我所欲也；二者不可得兼，舍魚而取熊掌者也。生亦我所欲也，義亦我所欲也；二者不可得兼，舍生而取義者也。生亦我所欲，所欲有甚於生者，故不為苟得也；死亦我所惡，所惡有甚於死者，故患有所不辟也。如使人之所欲莫甚於生，則凡可以得生者，何不用也？使人之所惡莫甚於死者，則凡可以辟患者，何不為也？由是則生而有不用也，由是則可以辟患而有不為也，是故所欲有甚於生者，所惡有甚於死者。非獨賢者有是心也，人皆有之，賢者能勿喪耳。" },
                     { text: "一簞食，一豆羹，得之則生，弗得則死。嘑爾而與之，行道之人弗受；蹴爾而與之，乞人不屑也；萬鍾則不辯禮義而受之。萬鍾於我何加焉？為宮室之美、妻妾之奉、所識窮乏者得我與？鄉為身死而不受，今為宮室之美為之；鄉為身死而不受，今為妻妾之奉為之；鄉為身死而不受，今為所識窮乏者得我而為之，是亦不可以已乎？此之謂失其本心。」" }
@@ -404,6 +897,7 @@
                 author: "莊子",
                 dynasty: "先秦",
                 summary: "透過莊子與惠子關於「五石大瓠」與「大樗之樹」的兩段對話，批評世人受世俗成見束縛（蓬之心），不懂得跳出功利框架「用大」與「無用之用」，從而帶出破除執著、順應自然、逍遙自在的道家哲理。",
+                technique: "善用【寓言故事】與【對話體】說理；以惠子執著世俗功利與莊子超脫逍遙構成【人物對比】；並借「宋人善為不龜手之藥」及「狸狌與犛牛」作【比喻論證】，化抽象哲理為生動形象。",
                 paragraphs: [
                     { text: "惠子謂莊子曰：「魏王貽我大瓠之種，我樹之成而實五石。以盛水漿，其堅不能自舉也。剖之以為瓢，則瓠落無所容。非不呺然大也，吾為其無用而掊之。」莊子曰：「夫子固拙於用大矣！宋人有善為不龜手之藥者，世世以洴澼絖為事。客聞之，請買其方百金。聚族而謀曰：『我世世為洴澼絖，不過數金；今一朝而鬻技百金，請與之。』客得之，以說吳王。越有難，吳王使之將，冬與越人水戰，大敗越人，裂地而封之。能不龜手一也；或以封，或不免於洴澼絖，則所用之異也。今子有五石之瓠，何不慮以為大樽而浮於江湖，而憂其瓠落無所容，則夫子猶有蓬之心也夫！」" },
                     { text: "惠子謂莊子曰：「吾有大樹，人謂之樗；其大本擁腫而不中繩墨，其小枝卷曲而不中規矩。立之塗，匠者不顧。今子之言，大而無用，眾所同去也。」莊子曰：「子獨不見狸狌乎？卑身而伏，以候敖者；東西跳梁，不辟高下，中於機辟，死於罔罟。今夫犛牛，其大若垂天之雲；此能為大矣，而不能執鼠。今子有大樹，患其無用，何不樹之於無何有之鄉，廣莫之野，彷徨乎無為其側，逍遙乎寢臥其下；不夭斤斧，物無害者。無所可用，安所困苦哉？」" }
@@ -415,6 +909,7 @@
                 author: "荀子",
                 dynasty: "先秦",
                 summary: "開宗明義提出「學不可以已」的中心論點。透過大量比喻與對比，從學習的意義（改變本性、知明而行無過）、學習的作用（善假於物）及學習的方法與態度（積累、堅持不懈、用心專一）三方面勉勵世人力學不倦。",
+                technique: "全文通篇運用【比喻論證】（共二十多個比喻，如青出於藍、輮木為輪、登高而招）與【對比論證】（騏驥與駑馬、朽木與金石、蚯蚓與螃蟹），句式整齊【排比對偶】，說理透闢有力。",
                 paragraphs: [
                     { text: "君子曰：學不可以已。青，取之於藍，而青於藍；冰，水為之，而寒於水。木直中繩，輮以為輪，其曲中規；雖有槁暴、不復挺者，輮使之然也。故木受繩則直，金就礪則利，君子博學而日參省乎己，則知明而行無過矣。" },
                     { text: "吾嘗終日而思矣，不如須臾之所學也；吾嘗跂而望矣，不如登高之博見也。登高而招，臂非加長也，而見者遠。順風而呼，聲非加疾也，而聞者彰。假輿馬者，非利足也，而致千里；假舟楫者，非能水也，而絕江河。君子生非異也，善假於物也。" },
@@ -427,6 +922,7 @@
                 author: "司馬遷",
                 dynasty: "漢朝",
                 summary: "記述「完璧歸趙」、「澠池之會」及「負荊請罪」三個歷史事件，刻劃藺相如智勇雙全、不畏強權、顧全大局與先國家之急而後私讎的風範，以及廉頗勇於改過、忠於趙國的將相和精神。",
+                technique: "【直接描寫】（語言、行動、神態，如「怒髮上衝冠」、「持其璧睨柱」）與【側面烘托】（繆賢薦才、秦王及左右反應、舍人欲辭去）相結合；以廉頗之魯莽矜功【襯托】藺相如之深謀遠慮與寬宏大量，結構嚴謹，波瀾起伏。",
                 paragraphs: [
                     { text: "廉頗者，趙之良將也。趙惠文王十六年，廉頗為趙將伐齊，大破之，取陽晉，拜為上卿，以勇氣聞於諸侯。藺相如者，趙人也，為趙宦者令繆賢舍人。" },
                     { text: "趙惠文王時，得楚和氏璧。秦昭王聞之，使人遺趙王書，願以十五城請易璧。趙王與大將軍廉頗諸大臣謀：欲予秦，秦城恐不可得，徒見欺；欲勿予，即患秦兵之來。計未定，求人可使報秦者，未得。宦者令繆賢曰：「臣舍人藺相如可使。」王問：「何以知之？」對曰：「臣嘗有罪，竊計欲亡走燕，臣舍人相如止臣，曰：『君何以知燕王？』臣語曰：『臣嘗從大王與燕王會境上，燕王私握臣手，曰「願結友。」以此知之，故欲往。』相如謂臣曰：『夫趙彊而燕弱，而君幸於趙王，故燕王欲結於君。今君乃亡趙走燕，燕畏趙，其勢必不敢留君，而束君歸趙矣。君不如肉袒伏斧質請罪，則幸得脫矣。』臣從其計，大王亦幸赦臣。臣竊以為其人勇士，有智謀，宜可使。」於是王召見，問藺相如曰：「秦王以十五城請易寡人之璧，可予不？」相如曰：「秦彊而趙弱，不可不許。」王曰：「取吾璧，不予我城，奈何？」相如曰：「秦以城求璧而趙不許，曲在趙；趙予璧而秦不予趙城，曲在秦。均之二策，寧許以負秦曲。」王曰：「誰可使者？」相如曰：「王必無人，臣願奉璧往使。城入趙而璧留秦；城不入，臣請完璧歸趙。」趙王於是遂遣相如奉璧西入秦。" },
@@ -443,6 +939,7 @@
                 author: "諸葛亮",
                 dynasty: "三國",
                 summary: "諸葛亮北伐前上奏後主劉禪的表文。文中分析蜀漢危急存亡之局勢，勸勉後主「廣開言路」、「嚴明賞罰」及「親賢遠小」，並自述身世與追隨先帝劉備的經過，流露「報先帝而忠陛下」的耿耿忠心。",
+                technique: "融【議政、敘事、抒情】於一爐；以先漢興隆與後漢傾頹作【歷史對比論證】；全篇十三次提及「先帝」，兼具君臣之禮與父子長輩之溫情叮嚀，語氣懇切得體，感人至深。",
                 paragraphs: [
                     { text: "先帝創業未半，而中道崩殂；今天下三分，益州疲弊，此誠危急存亡之秋也！然侍衛之臣，不懈於內；忠志之士，忘身於外者，蓋追先帝之殊遇，欲報之於陛下也。" },
                     { text: "誠宜開張聖聽，以光先帝遺德，恢弘志士之氣；不宜妄自菲薄，引喻失義，以塞忠諫之路也。" },
@@ -459,6 +956,7 @@
                 author: "韓愈",
                 dynasty: "唐朝",
                 summary: "闡述從師問學之道：提出老師「傳道、受業、解惑」的職責，主張「無貴無賤，無長無少，道之所存，師之所存」及「聞道有先後，術業有專攻」的擇師原則，並藉三組對比批判當時士大夫「恥學於師」的流弊。",
+                technique: "善用【三重正反對比論證】（古之聖人從師 vs 今之眾人恥師；愛其子擇師 vs 於其身恥師；巫醫樂師百工不恥相師 vs 士大夫之族笑之）批判時弊；並引用孔子言行作【舉例及語例論證】，破立結合。",
                 paragraphs: [
                     { text: "古之學者必有師。師者，所以傳道、受業、解惑也。人非生而知之者，孰能無惑？惑而不從師，其為惑也終不解矣。" },
                     { text: "生乎吾前，其聞道也，固先乎吾，吾從而師之；生乎吾後，其聞道也，亦先乎吾，吾從而師之。吾師道也，夫庸知其年之先後生於吾乎？是故無貴無賤，無長無少，道之所存，師之所存也。" },
@@ -475,6 +973,7 @@
                 author: "柳宗元",
                 dynasty: "唐朝",
                 summary: "記敘作者被貶永州後終日惴慄，寄情山水以排遣憂鬱；直至發現並登上特出高聳的西山，飽覽千里壯闊山川，達到「心凝形釋，與萬化冥合」的物我兩忘境界，從貶謫困頓中獲得精神解脫，故以「始得」為題。",
+                technique: "【借景抒情】與【襯托手法】：以昔日遊眾山之「漫漫而遊、傾壺而醉」反襯遊西山之「心凝形釋、物我兩忘」；並以數州土壤如蟻封洞穴【襯托】西山之高聳特出，暗喻自己高潔傲岸的人格；善用【頂真】修辭。",
                 paragraphs: [
                     { text: "自余為僇人，居是州，恒惴慄。其隙也，則施施而行，漫漫而遊。日與其徒上高山，入深林，窮迴溪，幽泉怪石，無遠不到。到則披草而坐，傾壺而醉。醉則更相枕以臥，臥而夢。意有所極，夢亦同趣。覺而起，起而歸。以為凡是州之山有異態者，皆我有也，而未始知西山之怪特。" },
                     { text: "今年九月二十八日，因坐法華西亭，望西山，始指異之。遂命僕過湘江，緣染溪，斫榛莽，焚茅茷，窮山之高而止。攀援而登，箕踞而遨，則凡數州之土壤，皆在衽席之下。其高下之勢，岈然洼然，若垤若穴，尺寸千里，攢蹙累積，莫得遯隱。縈青繚白，外與天際，四望如一。然後知是山之特出，不與培塿為類。悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮。引觴滿酌，頹然就醉，不知日之入。蒼然暮色，自遠而至，至無所見，而猶不欲歸。心凝形釋，與萬化冥合。然後知吾嚮之未始遊，遊於是乎始，故為之文以志。是歲元和四年也。" }
@@ -486,6 +985,7 @@
                 author: "范仲淹",
                 dynasty: "宋朝",
                 summary: "藉重修岳陽樓記敘洞庭湖大觀，描寫遷客騷人於「霪雨霏霏」與「春和景明」兩種景致下「感極而悲」與「其喜洋洋」的覽物之情；進而抒發古仁人「不以物喜，不以己悲」的胸襟，並提出「先天下之憂而憂，後天下之樂而樂」的政治抱負，勉勵友人滕子京。",
+                technique: "融【記事、寫景、抒情、議論】於一體；以洞庭湖一暗一明（霪雨霏霏 vs 春和景明）及遷客騷人一悲一喜構成【對比】，再以遷客騷人受外物牽動【反襯】古仁人「不以物喜，不以己悲」的崇高境界，駢散結合，音節鏗鏘。",
                 paragraphs: [
                     { text: "慶曆四年春，滕子京謫守巴陵郡。越明年，政通人和，百廢具興。乃重修岳陽樓，增其舊制，刻唐賢、今人詩賦於其上；屬予作文以記之。" },
                     { text: "予觀夫巴陵勝狀，在洞庭一湖。銜遠山，吞長江，浩浩湯湯，橫無際涯；朝暉夕陰，氣象萬千。此則岳陽樓之大觀也，前人之述備矣。然則北通巫峽，南極瀟湘，遷客騷人，多會於此，覽物之情，得無異乎？" },
@@ -500,6 +1000,7 @@
                 author: "蘇洵",
                 dynasty: "宋朝",
                 summary: "論證「六國破滅，非兵不利，戰不善，弊在賂秦」的中心論點。分別就「賂秦者」（韓、魏、楚）以地事秦猶抱薪救火，與「不賂者」（齊、燕、趙）因失強援而亡加以剖析，藉古諷今，警誡北宋朝廷切勿為外敵積威所劫而苟安納幣。",
+                technique: "採用【開門見山】立論及【總分總】結構；結合【對比論證】（秦戰勝所得 vs 賂秦所得；祖先創業艱難 vs 子孫割地輕率）、【比喻論證】（抱薪救火）及【假設論證】，借古諷今，針砭北宋對遼夏納幣求和之弊。",
                 paragraphs: [
                     { text: "六國破滅，非兵不利，戰不善，弊在賂秦。賂秦而力虧，破滅之道也。或曰：「六國互喪，率賂秦耶？」曰：「不賂者以賂者喪。」蓋失強援，不能獨完，故曰「弊在賂秦」也。" },
                     { text: "秦以攻取之外，小則獲邑，大則得城，較秦之所得與戰勝而得者，其實百倍；諸侯之所亡與戰敗而亡者，其實亦百倍。則秦之所大欲，諸侯之所大患，固不在戰矣。思厥先祖父，暴霜露，斬荊棘，以有尺寸之地。子孫視之不甚惜，舉以予人，如棄草芥。今日割五城，明日割十城，然後得一夕安寢；起視四境，而秦兵又至矣。然則諸侯之地有限，暴秦之欲無厭，奉之彌繁，侵之愈急，故不戰而強弱勝負已判矣。至於顛覆，理固宜然。古人云：「以地事秦，猶抱薪救火，薪不盡，火不滅。」此言得之。" },
@@ -514,6 +1015,7 @@
                 author: "王維、李白、杜甫",
                 dynasty: "唐朝",
                 summary: "包含三首盛唐名篇：王維《山居秋暝》以詩中有畫描繪秋山雨後清幽晚景，寄託歸隱之志；李白《月下獨酌》奇想邀月與影共飲歌舞，在曠達自得中流露孤高寂寞；杜甫《登樓》融山河壯景與國家多難於一爐，抒發憂國傷時與仰慕諸葛亮之情。",
+                technique: "《山居秋暝》善用【動靜結合】與【以聲襯靜】（竹喧、蓮動襯托空山幽靜）；《月下獨酌》運用【擬人法】化無情之月影為摯友，以熱鬧反襯孤寂；《登樓》融【寫景、抒情、用典】（後主祠、梁甫吟）於一體，借古諷今。",
                 paragraphs: [
                     { subheading: "《山居秋暝》 王維", text: "空山新雨後，天氣晚來秋。\n明月松間照，清泉石上流。\n竹喧歸浣女，蓮動下漁舟。\n隨意春芳歇，王孫自可留。" },
                     { subheading: "《月下獨酌（其一）》 李白", text: "花間一壺酒，獨酌無相親。\n舉杯邀明月，對影成三人。\n月既不解飲，影徒隨我身。\n暫伴月將影，行樂須及春。\n我歌月徘徊，我舞影零亂。\n醒時同交歡，醉後各分散。\n永結無情遊，相期邈雲漢。" },
@@ -526,6 +1028,7 @@
                 author: "蘇軾、李清照、辛棄疾",
                 dynasty: "宋朝",
                 summary: "包含三闋兩宋名詞：蘇軾《念奴嬌・赤壁懷古》寫赤壁壯闊江山與周瑜雄姿，抒發早生華髮之感慨與曠達情懷；李清照《聲聲慢・秋情》以疊字開篇，藉殘秋景物細訴國破家亡、晚年孤寂之愁；辛棄疾《青玉案・元夕》以元宵繁華反襯「燈火闌珊處」孤高淡泊的美人，寄託自己不與世俗同流合污的品格。",
+                technique: "《念奴嬌》以周瑜年少立功【襯托】詞人早生華髮、壯志未酬；《聲聲慢》連用七組十四個【疊字】奠定悲涼基調，藉晚風、舊雁、黃花、梧桐細雨【借景抒情】；《青玉案》以元宵滿城繁華及眾女盛裝【反襯】燈火闌珊處之伊人，【借美人香草寄託】政治理想。",
                 paragraphs: [
                     { subheading: "《念奴嬌・赤壁懷古》 蘇軾", text: "大江東去，浪淘盡、千古風流人物。故壘西邊，人道是、三國周郎赤壁。亂石穿空，驚濤拍岸，捲起千堆雪。江山如畫，一時多少豪傑！\n遙想公瑾當年，小喬初嫁了，雄姿英發。羽扇綸巾，談笑間、檣櫓灰飛煙滅。故國神遊，多情應笑我，早生華髮。人間如夢，一尊還酹江月。" },
                     { subheading: "《聲聲慢・秋情》 李清照", text: "尋尋覓覓，冷冷清清，悽悽慘慘戚戚。乍煖還寒時候，最難將息。三杯兩盞淡酒，怎敵他晚來風急！雁過也，正傷心，卻是舊時相識。\n滿地黃花堆積，憔悴損，如今有誰堪摘？守著窗兒，獨自怎生得黑！梧桐更兼細雨，到黃昏、點點滴滴。這次第，怎一箇愁字了得！" },
@@ -534,7 +1037,382 @@
             }
         ];
 
+        /**
+         * DSE 12 篇範文高頻必考字詞庫 (涵蓋歷屆試題常考之通假字、詞類活用、古今異義、一字多義)
+         */
+        const DSE_VOCAB_LIST = [
+            // 第1篇：論語
+            { id: 101, articleId: 1, article: "論仁、論孝、論君子", type: "重點實詞", word: "約", sentence: "不仁者，不可以久處【約】。", meaning: "貧困 / 窮困的境況", note: "與後句「長處樂」的「樂（安樂/富貴）」相對。" },
+            { id: 102, articleId: 1, article: "論仁、論孝、論君子", type: "通假字", word: "知", sentence: "仁者安仁，【知】者利仁。", meaning: "通「智」，聰明、有智慧", note: "讀音同「智」，指有智慧的人明白行仁的好處而實行仁。" },
+            { id: 103, articleId: 1, article: "論仁、論孝、論君子", type: "古今異義", word: "造次", sentence: "【造次】必於是，顛沛必於是。", meaning: "倉卒、匆忙、急促之時", note: "「顛沛」則指困頓挫折之時；整句指任何時候都不違背仁。" },
+            { id: 104, articleId: 1, article: "論仁、論孝、論君子", type: "重點實詞", word: "幾諫", sentence: "事父母【幾諫】，見志不從，又敬不違。", meaning: "婉轉、輕微地勸諫", note: "「幾」解作細微、委婉。" },
+            { id: 105, articleId: 1, article: "論仁、論孝、論君子", type: "通假字", word: "孫", sentence: "禮以行之，【孫】以出之，信以成之。", meaning: "通「遜」，謙遜", note: "指君子以謙遜的言語態度表達出來。" },
+            { id: 106, articleId: 1, article: "論仁、論孝、論君子", type: "重點實詞", word: "病", sentence: "君子【病】無能焉，不病人之不己知也。", meaning: "擔憂、憂慮、慚愧", note: "動詞，並非指生病。" },
+
+            // 第2篇：魚我所欲也
+            { id: 201, articleId: 2, article: "魚我所欲也", type: "通假字", word: "辟", sentence: "故患有所不【辟】也。", meaning: "通「避」，躲避、逃避", note: "「患」指災禍、禍患。" },
+            { id: 202, articleId: 2, article: "魚我所欲也", type: "古今異義", word: "蹴爾", sentence: "【蹴爾】而與之，乞人不屑也。", meaning: "用腳踐踏著（給人）的樣子", note: "「嘑爾」則是大聲呼喝地給人。" },
+            { id: 203, articleId: 2, article: "魚我所欲也", type: "通假字", word: "辯", sentence: "萬鍾則不【辯】禮義而受之。", meaning: "通「辨」，分辨、辨別", note: "「萬鍾」指優厚的俸祿。" },
+            { id: 204, articleId: 2, article: "魚我所欲也", type: "通假字", word: "得", sentence: "所識窮乏者【得】我與？", meaning: "通「德」，感激恩德（動詞）", note: "句末「與」通「歟」，語氣助詞。" },
+            { id: 205, articleId: 2, article: "魚我所欲也", type: "通假字", word: "鄉", sentence: "【鄉】為身死而不受，今為宮室之美為之。", meaning: "通「向」，從前、往日", note: "與後句「今」構成強烈今昔對比。" },
+
+            // 第3篇：逍遙遊
+            { id: 301, articleId: 3, article: "逍遙遊", type: "詞類活用", word: "樹", sentence: "魏王貽我大瓠之種，我【樹】之成而實五石。", meaning: "種植（名詞活用為動詞）", note: "「實」亦是名詞活用為動詞，指結出果實。" },
+            { id: 302, articleId: 3, article: "逍遙遊", type: "古今異義", word: "龜", sentence: "宋人有善為不【龜】手之藥者。", meaning: "通「皸」，皮膚受凍裂開", note: "讀作「軍」(gwan1 / jūn)。" },
+            { id: 303, articleId: 3, article: "逍遙遊", type: "重點實詞", word: "鬻", sentence: "今一朝而【鬻】技百金，請與之。", meaning: "賣、出售", note: "「洴澼絖」則指在水中漂洗絲絮。" },
+            { id: 304, articleId: 3, article: "逍遙遊", type: "重點實詞", word: "慮", sentence: "何不【慮】以為大樽而浮於江湖？", meaning: "用繩絡繫縛 / 結綴", note: "並非解作「考慮」，此為 DSE 常考陷阱題！" },
+            { id: 305, articleId: 3, article: "逍遙遊", type: "比喻詞", word: "蓬之心", sentence: "則夫子猶有【蓬之心】也夫！", meaning: "比喻心思茅塞不通、見識淺薄", note: "蓬草彎曲不直，比喻惠子受世俗成見束縛。" },
+
+            // 第4篇：勸學
+            { id: 401, articleId: 4, article: "勸學", type: "重點實詞", word: "已", sentence: "君子曰：學不可以【已】。", meaning: "停止、廢止", note: "中心論點：學習是不可以停止的。" },
+            { id: 402, articleId: 4, article: "勸學", type: "通假字", word: "有 / 暴", sentence: "雖【有】槁【暴】、不復挺者，輮使之然也。", meaning: "「有」通「又」；「暴」通「曝」（曬乾）", note: "「挺」解作直。" },
+            { id: 403, articleId: 4, article: "勸學", type: "重點實詞", word: "就礪", sentence: "故木受繩則直，金【就礪】則利。", meaning: "靠近磨刀石（就：接近；礪：磨刀石）", note: "「金」指金屬製的刀劍。" },
+            { id: 404, articleId: 4, article: "勸學", type: "重點實詞", word: "假", sentence: "君子【生】非異也，善【假】於物也。", meaning: "「生」通「性」（天性）；「假」解作憑藉、借助", note: "「假舟楫者，非能水也」中的「水」是名詞活用作動詞（游水）。" },
+            { id: 405, articleId: 4, article: "勸學", type: "重點實詞", word: "鍥而不舍", sentence: "【鍥而不舍】，金石可鏤。", meaning: "鍥：雕刻；舍：停止、放棄", note: "比喻堅持不懈地學習。" },
+
+            // 第5篇：廉頗藺相如列傳
+            { id: 501, articleId: 5, article: "廉頗藺相如列傳", type: "重點虛詞", word: "徒", sentence: "欲予秦，秦城恐不可得，【徒】見欺。", meaning: "白白地、徒然", note: "「見欺」即被欺騙（被動句式）。" },
+            { id: 502, articleId: 5, article: "廉頗藺相如列傳", type: "重點實詞", word: "負", sentence: "均之二策，寧許以【負】秦曲。", meaning: "使……承擔 / 背負（使動用法）", note: "「均」解作衡量、比較；「曲」解作理虧。" },
+            { id: 503, articleId: 5, article: "廉頗藺相如列傳", type: "詞類活用", word: "衣 / 間", sentence: "乃使其從者【衣】褐，懷其璧，從徑道亡，歸璧於趙……【間】至趙矣。", meaning: "衣：穿著（名作動）；間：抄小路 / 秘密地（名作狀）", note: "DSE 極常考的詞類活用！" },
+            { id: 504, articleId: 5, article: "廉頗藺相如列傳", type: "古今異義", word: "約束", sentence: "秦自繆公以來二十餘君，未嘗有堅明【約束】者也。", meaning: "盟約、信約", note: "古義指雙方訂立的盟約，非現代「限制」之意。" },
+            { id: 505, articleId: 5, article: "廉頗藺相如列傳", type: "重點虛詞", word: "顧", sentence: "【顧】吾念之，彊秦之所以不敢加兵於趙者，徒以吾兩人在也。", meaning: "只是、不過（轉折連詞）", note: "注意與「相如顧召趙御史」（回頭看）的「顧」區分（一字多義）。" },
+
+            // 第6篇：出師表
+            { id: 601, articleId: 6, article: "出師表", type: "古今異義", word: "開張", sentence: "誠宜【開張】聖聽，以光先帝遺德。", meaning: "擴大、廣泛聽取", note: "非現代「店舖開業」之意。" },
+            { id: 602, articleId: 6, article: "出師表", type: "重點實詞", word: "陟罰臧否", sentence: "宮中、府中，俱為一體；【陟罰臧否】，不宜異同。", meaning: "晉升、處罰、讚揚善行、批評惡行", note: "「異同」屬偏義複詞，偏指「異」（不同標準）。" },
+            { id: 603, articleId: 6, article: "出師表", type: "古今異義", word: "卑鄙", sentence: "先帝不以臣【卑鄙】，猥自枉屈，三顧臣於草廬之中。", meaning: "身分低微，見識淺陋（自謙詞）", note: "古代無道德敗壞之貶義，必考古今異義！" },
+            { id: 604, articleId: 6, article: "出師表", type: "重點實詞", word: "庶竭駑鈍", sentence: "【庶】竭【駑鈍】，攘除姦凶。", meaning: "庶：希望（表期望）；駑鈍：比喻才能平庸（自謙）", note: "「攘除」解作排斥、剷除。" },
+
+            // 第7篇：師說
+            { id: 701, articleId: 7, article: "師說", type: "重點虛詞", word: "所以", sentence: "師者，【所以】傳道、受業、解惑也。", meaning: "用來……的（憑藉）/ 藉以……的人", note: "注意與「聖人之所以為聖」（……的原因）區分！" },
+            { id: 702, articleId: 7, article: "師說", type: "重點虛詞", word: "庸", sentence: "吾師道也，夫【庸】知其年之先後生於吾乎？", meaning: "豈、難道（反問語氣詞），或解作「何必、哪用」", note: "「吾師道也」的「師」是意動用法：以道為師 / 學習道理。" },
+            { id: 703, articleId: 7, article: "師說", type: "詞類活用", word: "恥", sentence: "而【恥】學於師 / 於其身也則【恥】師焉。", meaning: "以……為恥（意動用法）", note: "批判當時士大夫以從師學習為羞恥的歪風。" },
+            { id: 704, articleId: 7, article: "師說", type: "重點實詞", word: "不齒", sentence: "巫、醫、樂師、百工之人，君子【不齒】。", meaning: "不屑與之同列 / 看不起", note: "「齒」指並列。" },
+
+            // 第8篇：始得西山宴遊記
+            { id: 801, articleId: 8, article: "始得西山宴遊記", type: "重點實詞", word: "僇人", sentence: "自余為【僇人】，居是州，恒惴慄。", meaning: "罪人 / 受過刑辱的人", note: "柳宗元因永貞革新失敗被貶永州司馬，故自稱僇人。" },
+            { id: 802, articleId: 8, article: "始得西山宴遊記", type: "詞類活用", word: "窮", sentence: "入深林，【窮】迴溪 / 【窮】山之高而止。", meaning: "走到盡頭 / 窮盡（形容詞活用作動詞）", note: "表現作者尋幽探勝、無遠不到的行為。" },
+            { id: 803, articleId: 8, article: "始得西山宴遊記", type: "重點實詞", word: "箕踞", sentence: "攀援而登，【箕踞】而遨。", meaning: "兩腳張開而坐，形似簸箕（表無拘無束、傲岸自在）", note: "「培塿」則指小土丘。" },
+            { id: 804, articleId: 8, article: "始得西山宴遊記", type: "核心名句", word: "心凝形釋", sentence: "【心凝形釋】，與萬化冥合。", meaning: "心神凝聚，形體不受拘束（忘卻自身存在）", note: "與大自然萬物暗中融合為一，達到物我兩忘的解脫境界。" },
+
+            // 第9篇：岳陽樓記
+            { id: 901, articleId: 9, article: "岳陽樓記", type: "通假字", word: "具 / 屬", sentence: "百廢【具】興……【屬】予作文以記之。", meaning: "「具」通「俱」（全、都）；「屬」通「囑」（叮囑、託付）", note: "第一段必考通假字雙連擊！" },
+            { id: 902, articleId: 9, article: "岳陽樓記", type: "重點實詞", word: "去國", sentence: "登斯樓也，則有【去國】懷鄉，憂讒畏譏。", meaning: "離開國都（去：離開；國：國都/京城）", note: "切勿誤譯為「離開國家」！" },
+            { id: 903, articleId: 9, article: "岳陽樓記", type: "古今異義", word: "氣象", sentence: "朝暉夕陰，【氣象】萬千。", meaning: "景象、景物面貌", note: "非現代「天氣現象」之意。" },
+            { id: 904, articleId: 9, article: "岳陽樓記", type: "重點虛詞", word: "微", sentence: "噫！【微】斯人，吾誰與歸！", meaning: "如果沒有 / 倘若不是", note: "「斯人」指「古仁人」；「歸」解作效法、歸依。" },
+
+            // 第10篇：六國論
+            { id: 1001, articleId: 10, article: "六國論", type: "重點虛詞", word: "率", sentence: "六國互喪，【率】賂秦耶？", meaning: "全都、一概", note: "「蓋失強援，不能獨完」的「蓋」是連詞，解作「因為」。" },
+            { id: 1002, articleId: 10, article: "六國論", type: "重點實詞", word: "厭 / 彌", sentence: "暴秦之欲無【厭】，奉之【彌】繁，侵之愈急。", meaning: "厭：通「饜」，滿足；彌：更加、越發", note: "切勿將「無厭」解作「不討厭」！" },
+            { id: 1003, articleId: 10, article: "六國論", type: "重點實詞", word: "速 / 洎", sentence: "至丹以荊卿為計，始【速】禍焉……【洎】牧以讒誅。", meaning: "速：招致、加速；洎：等到、及至", note: "荊軻刺秦王反而招致滅亡之禍。" },
+            { id: 1004, articleId: 10, article: "六國論", type: "重點實詞", word: "劫 / 故事", sentence: "為秦人積威之所【劫】……而從六國破亡之【故事】。", meaning: "劫：脅迫、震懾；故事：舊事、前例", note: "諷刺北宋若重蹈六國覆轍，連六國都不如。" },
+
+            // 第11 & 12篇：唐詩與宋詞
+            { id: 1101, articleId: 11, article: "唐詩三首", type: "重點實詞", word: "歇 / 王孫", sentence: "隨意春芳【歇】，【王孫】自可留。", meaning: "歇：凋謝、消逝；王孫：原指貴族子弟，此處詩人自指", note: "反用《楚辭・招隱士》典故，表達歸隱山林之志。" },
+            { id: 1102, articleId: 11, article: "唐詩三首", type: "重點虛詞", word: "將 / 邈", sentence: "暫伴月【將】影……相期【邈】雲漢。", meaning: "將：與、和、共；邈：遙遠（雲漢指銀河）", note: "出自李白《月下獨酌》。" },
+            { id: 1201, articleId: 12, article: "詞三首", type: "重點實詞", word: "酹 / 將息", sentence: "一尊還【酹】江月 ／ 乍煖還寒時候，最難【將息】。", meaning: "酹：把酒灑在地上祭奠；將息：調養、保養、休息", note: "分別出自蘇軾《念奴嬌》及李清照《聲聲慢》。" },
+            { id: 1202, articleId: 12, article: "詞三首", type: "重點實詞", word: "闌珊", sentence: "驀然迴首，那人卻在、燈火【闌珊】處。", meaning: "零落、稀疏、暗淡", note: "出自辛棄疾《青玉案・元夕》，象徵不慕榮利、孤高淡泊的品格。" }
+        ];
+
+        /**
+         * 卷二實用寫作 5 大文類格式與要點資料庫
+         */
+        const PRACTICAL_WRITING_DATA = [
+            {
+                id: "letter",
+                name: "書信（公函 / 私函）",
+                badge: "最高頻文類",
+                tone: "公函語氣須莊重、客觀、不卑不亢；私函（如致師長、同學）則須親切得體，切合雙方身分關係。切忌將祝頌語連寫在同一行，或漏寫「啟/上」等字眼。",
+                template: `
+                    <div class="text-stone-900 dark:text-stone-100 font-bold">XX校長鈞鑒：／ XX會長執事先生：／ 親愛的允行： <span class="text-xs font-normal text-paper-accent dark:text-ink-accent">（頂格寫稱謂＋冒號）</span></div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【啟首語及寫作背景】素仰 貴會一向關注青年發展…… ／ 近來學業繁忙，別來無恙嗎？日前讀到……，特致函與你分享看法。</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【正文：整合拓展（任務一）】綜合資料所示，現時校園主要面對兩大挑戰：其一……；其二……。</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【正文：見解論證（任務二）】針對上述情況，我建議從兩方面著手。首先，在短期措施方面……；長遠而言，更能……。</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【結尾收束】素聞 閣下熱心校政，盼能採納上述愚見。如蒙賜覆，不勝感激。</div>
+                    <div class="pl-8 text-stone-900 dark:text-stone-100 font-bold">順頌<br><span class=" -ml-8 inline-block">鈞安 ／ 教安 ／ 祝 學業進步</span> <span class="text-xs font-normal text-paper-accent dark:text-ink-accent">（「順頌/敬請」空兩格；「鈞安/教安」頂格！）</span></div>
+                    <div class="text-right text-stone-900 dark:text-stone-100 font-bold pt-2">學生會會長<br>陳一心 謹啟<br>二零二六年十月二十八日 <span class="block text-xs font-normal text-paper-accent dark:text-ink-accent">（靠右署名、職銜及完整年月日）</span></div>
+                `,
+                checklist: [
+                    "頂格寫出正確受文者稱謂（如「XX校長道鑒：」、「XX同學：」）",
+                    "開首已交代寫信背景、寫作目的及雙方關係",
+                    "祝頌語符合對象身分（對長輩用「敬請 鈞安/教安」，對平輩用「祝 近安/學安」）",
+                    "署名包含題目指定身分及姓名（絕不可寫自己真實姓名！）",
+                    "結尾附上完整日期（X年X月X日）"
+                ]
+            },
+            {
+                id: "speech",
+                name: "演講辭",
+                badge: "常考文類",
+                tone: "具現場感與互動感！善用第一、二人稱（「我」、「各位同學」、「大家」）及設問、反問、排比句式，語氣熱誠富感染力。切記不可加上日期與署名！",
+                template: `
+                    <div class="text-center font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100">〈標題：可加可不加，若加則置中〉</div>
+                    <div class="text-stone-900 dark:text-stone-100 font-bold">校長、各位老師、各位同學： <span class="text-xs font-normal text-paper-accent dark:text-ink-accent">（頂格稱呼在場聽眾，按輩分高低排列）</span></div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【開場白】大家早安！我是迦密學會會長陳一心。今日非常榮幸能在早會與大家分享……大家有沒有想過……？</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【正文：整合拓展 ＋ 見解論證】首先，讓我們看看現時的狀況……（過渡語：既然如此，我們可以怎樣做呢？）我認為大家不妨從日常生活做起……</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【結尾呼籲】「千里之行，始於足下。」盼望各位同學都能攜手參與，讓我們的校園更添色彩！</div>
+                    <div class="pl-8 text-stone-900 dark:text-stone-100 font-bold">多謝各位！ ／ 謝謝大家！ <span class="text-xs font-normal text-paper-accent dark:text-ink-accent">（必須有結束謝詞，且絕對不要寫署名和日期！）</span></div>
+                `,
+                checklist: [
+                    "頂格按尊卑次序稱呼所有在場聽眾（如：校長、各位老師、各位同學：）",
+                    "第一段包含問候語（早安/大家好）、自我介紹及演講主題",
+                    "行文具備現場呼告感（適度使用「大家」、「各位」、「我們」）",
+                    "結尾具備總結呼籲及「多謝各位！」",
+                    "確認【沒有】誤加書信式的署名及日期（加了會扣格式分！）"
+                ]
+            },
+            {
+                id: "proposal",
+                name: "建議書 / 計劃書",
+                badge: "結構最清晰",
+                tone: "務實、客觀、條理分明。強烈建議使用小標題（一、背景；二、現況分析；三、具體建議；四、預期成效）使閱卷員一目了然。",
+                template: `
+                    <div class="text-center font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100">〈「推廣中華文化週」活動建議書〉 <span class="block text-xs font-normal text-paper-accent dark:text-ink-accent">（置中明確標題）</span></div>
+                    <div class="text-stone-900 dark:text-stone-100 font-bold">XX校長／XX委員會： <span class="text-xs font-normal text-paper-accent dark:text-ink-accent">（如有特定呈交對象，須頂格寫稱謂）</span></div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【一、引言／背景目的】為響應學校推廣全人教育，本會特撰寫此建議書，旨在分析……並提出具體可行的改善方案。</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【二、現況分析／問題癥結】（對應整合拓展）綜合調查所得，現時主要存在兩大不足……</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【三、具體建議及預期成效】（對應見解論證）本會建議舉辦以下兩項活動，並從可行性及效益加以說明……</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【四、結語】總括而言，上述建議既貼合學生需要，亦具長遠效益，盼獲 校方垂注及採納。</div>
+                    <div class="text-right text-stone-900 dark:text-stone-100 font-bold pt-2">學生會主席 陳一心 謹上<br>二零二六年十月二十八日</div>
+                `,
+                checklist: [
+                    "具備置中且明確的《XXX建議書》標題",
+                    "如屬於向上級呈交之建議書，已加上受文者稱謂、署名及日期",
+                    "善用小標題分項列述，層次清晰",
+                    "每項建議均包含「具體做法」及「預期成效／解決到甚麼問題」"
+                ]
+            },
+            {
+                id: "initiative",
+                name: "倡議書 / 公開信",
+                badge: "兼具說理與號召",
+                tone: "既有建議書的清晰事理分析，亦具演講辭的情感號召力。旨在喚起大眾或特定群體關注某議題並付諸行動。",
+                template: `
+                    <div class="text-center font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100">〈共建綠色惜食校園倡議書〉 <span class="block text-xs font-normal text-paper-accent dark:text-ink-accent">（置中標題：標明倡議主題）</span></div>
+                    <div class="text-stone-900 dark:text-stone-100 font-bold">親愛的全校師生／各位市民： <span class="text-xs font-normal text-paper-accent dark:text-ink-accent">（頂格稱呼倡議對象）</span></div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【引言：點出議題迫切性】「誰知盤中飧，粒粒皆辛苦。」近日廚餘統計反映……情況令人憂慮，故本會特發起此倡議。</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【正文：分析目的與倡議行動】為扭轉此風氣，我們倡議大家從以下兩方面實踐：第一，……；第二，……。</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【結尾：鼓舞號召】坐言起行，方能成事！讓我們由今天午膳開始，攜手實踐惜食精神！</div>
+                    <div class="text-right text-stone-900 dark:text-stone-100 font-bold pt-2">環保學會會長 陳一心 謹啟<br>二零二六年十月二十八日</div>
+                `,
+                checklist: [
+                    "具備置中《XXX倡議書》標題",
+                    "頂格寫出廣泛受眾稱謂（如：各位同學：、全港市民：）",
+                    "清楚交代倡議背景、具體行動綱領及積極意義",
+                    "結尾具感染力與號召口號，並附上倡議人/團體署名與日期"
+                ]
+            },
+            {
+                id: "article",
+                name: "專題文章 / 評論 / 報章投稿",
+                badge: "重事理與結構",
+                tone: "針對刊物讀者（如校刊讀者、報章公眾），立論鮮明，析理客觀深入。注意：不用寫收信人稱謂，也不用寫祝頌語！",
+                template: `
+                    <div class="text-center font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100">〈正視青年精神健康：從校園同儕支援做起〉 <span class="block text-xs font-normal text-paper-accent dark:text-ink-accent">（置中正副標題，吸引讀者）</span></div>
+                    <div class="text-right text-xs sm:text-sm font-bold text-stone-600 dark:text-stone-400">文：陳一心（學生輔導組幹事） <span class="text-paper-accent dark:text-ink-accent font-normal">（作者署名可置於標題下靠右，或全文末靠右）</span></div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【引言：由現象切入主題】近年青少年情緒健康備受社會關注。究竟我們應如何看待……？本文將剖析箇中成因，並探討可行出路。</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【本論：整合拓展 ＋ 見解論證】誠然，造成此現象的成因主要有二……。有見及此，筆者認為學校與同學可雙管齊下……</div>
+                    <div class="pl-8 text-stone-700 dark:text-stone-300">【結論：總結全文、升華展望】總括而言，只要各方通力合作，定能為同學築起溫暖的心靈防護網。</div>
+                `,
+                checklist: [
+                    "具備置中且能概括全文中心的標題",
+                    "具備作者身分及署名（置於標題下或文末皆可）",
+                    "確認【沒有】誤加書信稱謂（如「各位讀者：」）及祝頌語",
+                    "行文自稱可用「筆者」、「本會」或「我們」，切合刊物語境"
+                ]
+            }
+        ];
+
+        /**
+         * 跨篇對比思維矩陣資料庫（主題對比 + 寫作手法對比）
+         */
+        const CROSS_TEXT_MATRIX_DATA = [
+            {
+                id: "life-death",
+                category: "主題對比",
+                title: "生死義利與憂患意識之抉擇",
+                subTitle: "《魚我所欲也》 vs 《論仁、論孝、論君子》 vs 延伸經典《五代史伶官傳序》",
+                texts: ["《魚我所欲也》", "《論仁、論孝、論君子》", "延伸：《五代史伶官傳序》"],
+                keywords: ["舍生取義", "殺身成仁", "不違仁", "本心", "憂勞興國・逸豫亡身", "層層遞進", "正反對比"],
+                similarities: [
+                    "【道德價值高於生命與私利】：《魚我所欲也》主張「舍生而取義」，認為義的價值高於生命與萬鍾俸祿；《論仁》亦提出「無求生以害仁，有殺身以成仁」及「不以其道得之，不處也」，兩者皆強調在生死或富貴關頭須堅守道德原則。",
+                    "【強調主觀自覺與修養本心】：孔子指出「為仁由己」，君子「無終食之間違仁」；孟子強調人人皆有羞惡之「本心」，賢者能「勿喪耳」；歐陽修《伶官傳序》亦指出盛衰之理「皆自為之」，強調人面對逆境或誘惑時的自省與定力。"
+                ],
+                differences: [
+                    {
+                        aspect: "核心概念側重",
+                        textA: "《魚我所欲也》（孟子）：側重「義」（羞惡之心、行事合宜），強調不受嗟來之食及不貪不義之財（萬鍾）。",
+                        textB: "《論仁》（孔子）：側重「仁」（克己復禮、愛人安仁），涵蓋日常視聽言動皆須合乎禮制；而《伶官傳序》則側重居安思危、戒驕戒逸的歷史興亡教訓。"
+                    },
+                    {
+                        aspect: "說理切入與論證方式",
+                        textA: "《魚我所欲也》：善用【比喻論證】（魚與熊掌設喻）及【今昔/人物對比】（乞人不受蹴爾之食 vs 士人受萬鍾），層層推進，氣勢凌厲。",
+                        textB: "《論仁》：採用【語錄體】，言簡意賅，直接提出道德訓勉與君子小人對比，沒有鋪張設喻。"
+                    }
+                ],
+                sampleQuestion: "試比較《論仁》「志士仁人，無求生以害仁，有殺身以成仁」與《魚我所欲也》「舍生取義」的道理有何相通之處，並指出兩文表達手法之不同。（5分）",
+                sampleAnswer: "【相通之處】兩者皆認為崇高的道德理想（仁／義）比個人生命更重要，當生命與道德衝突時，應寧死不屈，犧牲性命以成全仁義。 【手法不同】《論仁》以語錄體直接宣示觀點，凝練扼要；《魚我所欲也》則先以「魚與熊掌不可得兼」設喻（比喻論證），再引出「舍生取義」的論點，化抽象為具體。"
+            },
+            {
+                id: "monarch-minister",
+                category: "主題對比",
+                title: "人臣事君與進諫之道",
+                subTitle: "《出師表》 vs 《廉頗藺相如列傳》",
+                texts: ["《出師表》", "《廉頗藺相如列傳》"],
+                keywords: ["忠君愛國", "親賢遠小", "先國家之急而後私讎", "智勇雙全", "動之以情・曉之以理", "襯托手法"],
+                similarities: [
+                    "【以國家社稷為重，忘身盡忠】：諸葛亮北伐前夕上表，矢志「報先帝而忠陛下」，鞠躬盡瘁；藺相如面對強秦不辱使命，對內則忍讓廉頗，做到「先國家之急而後私讎」，兩者皆展現忠臣以國事為先的崇高風範。",
+                    "【重視人才與內部團結】：諸葛亮力勸後主「親賢臣，遠小人」，任用郭攸之、向寵等良臣使「行陣和睦」；藺相如則深明趙國能抗強秦全賴「將相和」，極力維護朝臣團結。"
+                ],
+                differences: [
+                    {
+                        aspect: "面對之對象與處境",
+                        textA: "《出師表》：對內向年輕暗弱的君主（後主劉禪）進諫，既是臣子對君主，亦帶長輩對晚輩的叮嚀。",
+                        textB: "《廉頗藺相如列傳》：既要對外折衝樽俎（面對蠻橫專斷的秦昭王），又要對內化解同僚（廉頗）的妒忌與挑釁。"
+                    },
+                    {
+                        aspect: "說服與應對策略",
+                        textA: "《出師表》：融【議政、敘事、抒情】於一爐，13次提及「先帝」，藉先帝遺訓與兩漢興亡史實【動之以情、曉之以理】，語氣懇切委婉。",
+                        textB: "《廉頗藺相如列傳》：對秦王採取【剛柔並濟、有理有節】策略（如持璧倚柱、請以頸血濺大王）；對舍人及廉頗則以大局為重，委曲求全，以德服人。"
+                    }
+                ],
+                sampleQuestion: "諸葛亮在《出師表》中勸諫後主，與藺相如在《廉頗藺相如列傳》中說服趙王許秦易璧，兩人的游說技巧有何不同？（4分）",
+                sampleAnswer: "諸葛亮兼具元老與長輩身分，故《出師表》多次援引「先帝」創業艱難及兩漢興衰歷史，動之以情、曉之以理，語氣諄諄善誘；而藺相如當時身分低微（繆賢舍人），故直接為趙王分析利害得失（「秦以城求璧而趙不許，曲在趙；趙予璧而秦不予趙城，曲在秦」），以嚴密邏輯指出「寧許以負秦曲」，並主動承擔出使重任，展現膽識。"
+            },
+            {
+                id: "learning-way",
+                category: "主題對比",
+                title: "學習之道與從師態度",
+                subTitle: "《勸學》 vs 《師說》",
+                texts: ["《勸學》", "《師說》"],
+                keywords: ["學不可以已", "善假於物", "傳道受業解惑", "無貴無賤・道之所存", "比喻論證", "三重正反對比", "破立結合"],
+                similarities: [
+                    "【肯定後天學習能改變本性、提升境界】：荀子認為君子「博學而日參省乎己，則知明而行無過矣」，強調「學不可以已」；韓愈亦指出「人非生而知之者」，必須透過從師學習方能「解惑」，否則「愚益愚」。",
+                    "【強調外在助力對學習的重要性】：荀子指出君子「善假於物」（借助外物與後天學習）；韓愈則聚焦於「從師而問」，強調必須借助老師「傳道、受業、解惑」。"
+                ],
+                differences: [
+                    {
+                        aspect: "核心論題焦點",
+                        textA: "《勸學》（荀子）：全面論述學習的【意義、作用、方法與態度】（強調積累、堅持不懈「鍥而不舍」、用心專一）。",
+                        textB: "《師說》（韓愈）：專論【從師問學之道】與【擇師原則】（無貴無賤、無長無少，道之所存，師之所存），旨在針砭唐代士大夫「恥學於師」的時弊。"
+                    },
+                    {
+                        aspect: "主要論證手法",
+                        textA: "《勸學》：通篇以【比喻論證】為主（青出於藍、輮木為輪、登高博見等二十多個比喻），輔以正反對比（騏驥 vs 駑馬、蚯蚓 vs 蟹）。",
+                        textB: "《師說》：以【三重正反對比論證】為主（古之聖人 vs 今之眾人、愛其子擇師 vs 於其身恥師、巫醫樂師百工 vs 士大夫），並結合孔子師郯子等【舉例與語例論證】。"
+                    }
+                ],
+                sampleQuestion: "荀子《勸學》與韓愈《師說》同談學習，但兩文寫作動機及論證手法各有側重，試加以比較。（6分）",
+                sampleAnswer: "【寫作動機】《勸學》旨在正面勉勵世人持之以恆、專心致志地學習以改變本性；《師說》則針對中唐士大夫「恥學於師」的不良風氣，破立結合，重振師道。 【論證手法】《勸學》重用密集比喻（如青出於藍、積土成山），將抽象學習道理具體化；《師說》則重用三重正反對比（如聖人從師與眾人恥師對比），強烈批判士大夫之愚昧。"
+            },
+            {
+                id: "metaphor-reasoning",
+                category: "寫作手法對比",
+                title: "比喻說理與寓言論證之異同",
+                subTitle: "《勸學》 vs 《逍遙遊》 vs 《魚我所欲也》",
+                texts: ["《勸學》", "《逍遙遊》", "《魚我所欲也》"],
+                keywords: ["比喻論證", "寓言故事", "化抽象為具體", "無用之用", "同類排比設喻", "正反設喻"],
+                similarities: [
+                    "【化抽象哲理為具體形象】：三篇皆善用日常事物設喻，將深奧抽象的儒道哲理（如學習的重要、逍遙無待之「用大」、舍生取義）轉化為生動易明的具體形象，增強說服力。"
+                ],
+                differences: [
+                    {
+                        aspect: "比喻的形態與篇幅",
+                        textA: "《勸學》：採用【密集短比喻／博喻】，一口氣連用「青取於藍、冰寒於水、木受繩、金就礪、登高而招、順風而呼」等大量生活現象排比推進，節奏明快。",
+                        textB: "《逍遙遊》：採用【寓言故事及對話設喻】，詳述「宋人善為不龜手之藥」及「狸狌與犛牛」、「大瓠與大樗」，情節完整，富奇幻想像色彩；《魚我所欲也》則以「魚與熊掌」作開篇【起興式單一設喻】，隨即轉入直接說理。"
+                    },
+                    {
+                        aspect: "說理風格",
+                        textA: "《勸學》與《魚我所欲也》：句式整齊，邏輯嚴密，正面立論鮮明。",
+                        textB: "《逍遙遊》：欲擒故縱，借惠子之世俗成見反襯莊子「無用之用」的超脫境界，汪洋恣肆，浪漫奇詭。"
+                    }
+                ],
+                sampleQuestion: "試比較荀子《勸學》與莊子《逍遙遊》運用比喻說理的方式有何不同。（4分）",
+                sampleAnswer: "《勸學》採用「博喻（連珠比喻）」，選取日常生活常見的自然現象（如染布、結冰、磨刀、行路）作短小精悍的排比設喻，直接點明學習之意義與態度；《逍遙遊》則採用「寓言式比喻」，透過「五石之瓠」、「不龜手之藥」及「樗樹與狸狌犛牛」等具故事性的對話與情節，曲折奇幻地寄寓「用大」與「無用之用」的道家哲理。"
+            },
+            {
+                id: "scenery-emotion",
+                category: "寫作手法對比",
+                title: "借景抒情、襯托與處世胸襟",
+                subTitle: "《始得西山宴遊記》 vs 《岳陽樓記》",
+                texts: ["《始得西山宴遊記》", "《岳陽樓記》"],
+                keywords: ["借景抒情", "反襯手法", "心凝形釋・萬化冥合", "不以物喜・不以己悲", "先憂後樂", "欲揚先抑"],
+                similarities: [
+                    "【皆為貶謫期間借山水樓台抒懷之作】：柳宗元被貶永州司馬，范仲淹被貶鄧州（藉好友滕子京謫守巴陵郡重修岳陽樓作文），兩文皆透過描繪壯闊山水景物，抒發個人面對逆境時的胸襟與精神追求。",
+                    "【善用對比與反襯突顯最高精神境界】：《始得西山》以昔日遊眾山之「漫漫而遊、傾壺而醉」反襯遊西山之「心凝形釋」；《岳陽樓記》則以遷客騷人因景物陰晴而「感極而悲／其喜洋洋」反襯古仁人「不以物喜，不以己悲」。"
+                ],
+                differences: [
+                    {
+                        aspect: "精神解脫與處世方向（儒 vs 道/佛）",
+                        textA: "《始得西山宴遊記》（柳宗元）：追求【個人精神與自然合一的解脫】。登西山後感到宇宙浩瀚、個人渺小，從「恒惴慄」的貶謫憂懼中釋放，達到「心凝形釋，與萬化冥合」的物我兩忘境界（偏向道家超脫）。",
+                        textB: "《岳陽樓記》（范仲淹）：追求【積極入世、憂國憂民的儒家抱負】。無論身處朝廷或被貶江湖，皆心繫君民，「先天下之憂而憂，後天下之樂而樂」。"
+                    },
+                    {
+                        aspect: "寫景方式（實寫 vs 虛構對比）",
+                        textA: "《始得西山宴遊記》：順敘【實寫】登西山所見之景（俯視數州土壤若垤若穴、四望如一），以眾山之矮小襯托西山之特出（暗喻自身高潔）。",
+                        textB: "《岳陽樓記》：以駢散結合筆法，【虛寫／概括描寫】洞庭湖「霪雨霏霏（暗景）」與「春和景明（明景）」兩幅截然不同的畫面，為後文議論鋪墊。"
+                    }
+                ],
+                sampleQuestion: "柳宗元在《始得西山宴遊記》與范仲淹在《岳陽樓記》面對政治挫折時，如何透過描寫自然景物展現不同的精神境界？（6分）",
+                sampleAnswer: "柳宗元實寫登上高聳特出的西山，俯瞰數州景物如蟻封洞穴，感受到自然無窮，從而忘卻被貶的恐懼（「恒惴慄」），達到「心凝形釋，與萬化冥合」的物我兩忘、超然物外之境；范仲淹則藉描寫洞庭湖一陰一晴之景引出遷客騷人因外物而悲喜，進而反襯古仁人「不以物喜，不以己悲」的超脫胸懷，並表明無論進退皆「先天下之憂而憂，後天下之樂而樂」的濟世抱負。"
+            }
+        ];
+
+        /**
+         * 實用寫作「見解論證四步推論生成器」題目情境預設庫
+         */
+        const REASONING_SCENARIOS = [
+            {
+                id: "culture",
+                name: "推廣中華傳統文化活動",
+                step1: "現時不少同學認為傳統文化歷史久遠、內容深奧枯燥，加上平日課業繁重，若只舉辦傳統靜態講座，往往流於單向說教，難以引起同學主動參與的興趣。",
+                step2: "學生會可於下學期初的文化週期間，在學校禮堂舉辦「中華文化體驗市集」，邀請非物質文化遺產導師及學會幹事設置書法扇面創作、茶藝品茗及漢服試穿打卡攤位。",
+                step3: "市集採取親身動手體驗及同儕互動形式，能打破傳統課堂的沉悶感；配合漢服打卡與手作紀念品，更切合青少年喜愛社交分享與追求新鮮感的心理，大大降低接觸文化的門檻。",
+                step4: "短期而言，此舉能讓同學在輕鬆氛圍中領略傳統工藝之美，紓緩學業壓力；長遠而言，更能潛移默化地提升同學的民族文化認同感，在校園內營造保育與傳承文化的濃厚風氣。"
+            },
+            {
+                id: "reading",
+                name: "營造校園悅讀風氣",
+                step1: "現今學生習慣瀏覽社交媒體的碎片化短訊與短片，普遍缺乏耐心閱讀長篇書籍；加上傳統閱讀報告形式刻板，容易令同學視閱讀為苦差。",
+                step2: "圖書館可聯同中文學會於每月午膳時段，在校園咖啡角舉辦「真人圖書館・好書三分鐘」分享會，邀請人氣師長及高年級同學以輕鬆對談形式，推介一本影響自己最深的書籍。",
+                step3: "以三分鐘短講配合師生互動對談，既契合同學午間短暫休息的節奏，又能發揮同儕與師長的榜樣感染力，取代硬性繳交閱讀報告的壓力，化被動為主動。",
+                step4: "短期而言，能激發同學對不同類型書籍的好奇心，帶動圖書館借閱率；長遠而言，更能培養同學深度思考與自主學習的習慣，建立書香滿溢的學習型校園。"
+            },
+            {
+                id: "mental",
+                name: "促進學生精神健康與抗逆力",
+                step1: "面對公開試與升學競爭，不少同學長期處於焦慮狀態；惟部分同學礙於面子或擔心被標籤，即使情緒受困亦不願主動向社工或師長求助。",
+                step2: "輔導組可於每週五放學後舉辦「心靈綠洲・園藝及靜觀工作坊」，並成立「同儕傾聽大使」計劃，由受訓的高年級學長在保密舒適的活動室陪伴有需要的同學傾訴。",
+                step3: "透過植物栽種與靜觀練習轉移注意力，能讓不善言辭的同學藉非語言方式宣洩壓力；而同儕學長年齡相近、經歷相似，更能產生共鳴與信任感，消除求助的心理隔閡。",
+                step4: "短期而言，能及時為同學排解負面情緒，避免壓力累積成疾；長遠而言，更能鍛煉同學的正向抗逆力，構建守望相助、關愛共融的校園支援網絡。"
+            },
+            {
+                id: "green",
+                name: "推動環保惜食與減廢校園",
+                step1: "不少同學環保意識流於表面，「知而不行」，午膳時常因飯盒份量過多或口味不合而造成大量廚餘，單靠張貼宣傳海報實難以改變日常習慣。",
+                step2: "環保學會可聯同膳食委員會推出「惜食減量・綠星獎勵計劃」，容許同學訂餐時選擇「少飯減價」選項，並於午膳回收處設電子印章，儲滿印章即可換領文具或小食。",
+                step3: "「少飯減價」直接從源頭減少浪費，切合不同食量同學的實際需要；而即時儲印換獎的正面激勵機制，能將抽象的環保概念轉化為具體可見的日常回報，提升持續參與度。",
+                step4: "短期而言，能顯著減少學校每日的廚餘棄置量，減輕環境負擔；長遠而言，更能培養同學知行合一的綠色生活態度，並將惜食風氣推廣至家庭與社區。"
+            }
+        ];
+
+        /**
+         * 實用寫作高分過渡連接詞庫
+         */
+        const TRANSITION_CONNECTORS = [
+            { tag: "引出痛點", text: "鑑於現時不少同學普遍存在……的局限，" },
+            { tag: "引出措施", text: "有見及此，本會建議舉辦……，" },
+            { tag: "避免空泛", text: "為使活動不流於形式，真正切合同學所需，" },
+            { tag: "扣連對象", text: "此舉正正契合青少年喜愛互動與同儕認同的心理，" },
+            { tag: "短期成效", text: "短期而言，這不僅能即時引起同學興趣，消除抗拒感；" },
+            { tag: "長遠昇華", text: "長遠而言，更能潛移默化地營造……的校園風氣，達到標本兼治之效。" }
+        ];
+
         // 狀態管理 State
+        let currentTab = 'texts';
+        let currentMatrixCategory = 'all';
+        let currentMatrixTopicId = 'life-death';
+        let currentScenarioId = 'culture';
         let currentArticleId = 1;
         let currentParagraphIndex = 0;
         let isPlaying = false;
@@ -545,6 +1423,20 @@
         let autoNextArticle = false;
         let reciteMode = false;
 
+        // 閃卡與實用文狀態
+        let currentVocabFilter = 'all';
+        let isVocabFocusMode = false;
+        let currentFocusVocabList = [...DSE_VOCAB_LIST];
+        let currentFocusVocabIndex = 0;
+        let masteredVocabIds = [];
+        let currentPracticalType = 'letter';
+
+        // 測驗狀態
+        let currentQuizPool = [];
+        let currentQuizIndex = 0;
+        let quizCorrectCount = 0;
+        let quizTotalAnswered = 0;
+
         // 字體大小等級設定
         const fontSizes = [
             { label: '小', textClass: 'text-base leading-relaxed', subClass: 'text-sm' },
@@ -554,13 +1446,16 @@
         ];
         let currentFontSizeIndex = 1;
 
-        // 已溫習紀錄 (儲存於 localStorage)
+        // 已溫習紀錄與閃卡熟記紀錄 (儲存於 localStorage)
         let completedIds = [];
         try {
             const saved = localStorage.getItem('dse_ch_completed');
             if (saved) completedIds = JSON.parse(saved);
+            const savedVocab = localStorage.getItem('dse_ch_vocab_mastered');
+            if (savedVocab) masteredVocabIds = JSON.parse(savedVocab);
         } catch (e) {
             completedIds = [];
+            masteredVocabIds = [];
         }
 
         // Web Speech API 合成器
@@ -724,6 +1619,7 @@
             document.getElementById('articleTitle').textContent = article.title;
             document.getElementById('articleAuthor').textContent = article.author;
             document.getElementById('articleSummary').textContent = article.summary;
+            document.getElementById('articleTechnique').textContent = article.technique || '';
             document.getElementById('paragraphCountInfo').textContent = `共 ${article.paragraphs.length} 段`;
             document.getElementById('playerArticleTitle').textContent = article.title;
 
@@ -1217,6 +2113,635 @@
             }, 2200);
         }
 
+        // ==========================================
+        // 新增：五大模組切換與閃卡/矩陣/實用文/自測邏輯
+        // ==========================================
+        function switchTab(tabName) {
+            currentTab = tabName;
+            const tabs = ['texts', 'matrix', 'vocab', 'practical', 'quiz'];
+            tabs.forEach(t => {
+                const viewEl = document.getElementById(`view-${t}`);
+                const btnEl = document.getElementById(`tabBtn-${t}`);
+                if (!viewEl || !btnEl) return;
+                if (t === tabName) {
+                    viewEl.classList.remove('hidden');
+                    btnEl.className = "px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shrink-0 transition-all bg-paper-accent text-white dark:bg-ink-accent shadow-xs";
+                } else {
+                    viewEl.classList.add('hidden');
+                    btnEl.className = "px-3 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-1.5 shrink-0 transition-all text-stone-600 dark:text-stone-400 hover:bg-stone-200/70 dark:hover:bg-stone-800";
+                }
+            });
+
+            // 背誦按鈕與手機目錄按鈕僅在範文頁顯示
+            const reciteBtn = document.getElementById('reciteModeBtn');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            if (tabName === 'texts') {
+                reciteBtn.classList.remove('hidden');
+                mobileMenuBtn.classList.remove('hidden');
+            } else {
+                reciteBtn.classList.add('hidden');
+                mobileMenuBtn.classList.add('hidden');
+            }
+
+            if (tabName === 'matrix') {
+                renderMatrixSection();
+            } else if (tabName === 'vocab') {
+                renderVocabSection();
+            } else if (tabName === 'practical') {
+                renderPracticalSection();
+                initReasoningGenerator();
+            } else if (tabName === 'quiz') {
+                if (currentQuizPool.length === 0) startNewQuizRound();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ==========================================
+        // 範文「跨篇對比思維矩陣」渲染與互動邏輯
+        // ==========================================
+        function filterMatrixCategory(cat) {
+            currentMatrixCategory = cat;
+            const cats = [
+                { id: 'all', key: 'all' },
+                { id: 'theme', key: '主題對比' },
+                { id: 'tech', key: '寫作手法對比' }
+            ];
+            cats.forEach(c => {
+                const btn = document.getElementById(`matrixCat-${c.id}`);
+                if (!btn) return;
+                if (c.key === cat) {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-bold bg-paper-accent text-white dark:bg-ink-accent transition";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-200/60 transition";
+                }
+            });
+
+            const filtered = cat === 'all'
+                ? CROSS_TEXT_MATRIX_DATA
+                : CROSS_TEXT_MATRIX_DATA.filter(item => item.category === cat);
+
+            if (filtered.length > 0 && !filtered.some(i => i.id === currentMatrixTopicId)) {
+                currentMatrixTopicId = filtered[0].id;
+            }
+            renderMatrixSection();
+        }
+
+        function selectMatrixTopic(topicId) {
+            currentMatrixTopicId = topicId;
+            renderMatrixSection();
+        }
+
+        function renderMatrixSection() {
+            const selectorEl = document.getElementById('matrixTopicSelector');
+            const detailEl = document.getElementById('matrixDetailContainer');
+            if (!selectorEl || !detailEl) return;
+
+            const filteredList = currentMatrixCategory === 'all'
+                ? CROSS_TEXT_MATRIX_DATA
+                : CROSS_TEXT_MATRIX_DATA.filter(item => item.category === currentMatrixCategory);
+
+            selectorEl.innerHTML = filteredList.map(item => {
+                const isActive = item.id === currentMatrixTopicId;
+                return `
+                    <button onclick="selectMatrixTopic('${item.id}')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 ${
+                        isActive
+                            ? 'bg-paper-accent text-white dark:bg-ink-accent shadow-xs'
+                            : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+                    }">
+                        <span class="text-[10px] px-1.5 py-0.5 rounded ${isActive ? 'bg-white/20 text-white' : 'bg-amber-500/15 text-amber-800 dark:text-amber-300'}">${item.category}</span>
+                        <span>${item.title}</span>
+                    </button>
+                `;
+            }).join('');
+
+            const topic = CROSS_TEXT_MATRIX_DATA.find(t => t.id === currentMatrixTopicId) || filteredList[0];
+            if (!topic) return;
+
+            detailEl.innerHTML = `
+                <div class="bg-paper-card dark:bg-ink-card rounded-2xl p-5 sm:p-7 border border-paper-border dark:border-ink-border shadow-xs space-y-6">
+                    <!-- 專題標頭與朗讀按鈕 -->
+                    <div class="flex flex-wrap items-start justify-between gap-4 border-b border-paper-border dark:border-ink-border pb-4">
+                        <div>
+                            <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                                <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-paper-accent/15 text-paper-accent dark:bg-ink-accent/25 dark:text-ink-accent">${topic.category}</span>
+                                ${topic.texts.map(t => `<span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300">${t}</span>`).join('')}
+                            </div>
+                            <h3 class="font-serif text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">${topic.title}</h3>
+                            <p class="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-0.5">${topic.subTitle}</p>
+                        </div>
+                        <button onclick="speakMatrixTopic('${topic.id}')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-paper-accent dark:bg-ink-accent text-white flex items-center gap-1.5 hover:opacity-90 transition shadow-xs">
+                            <i class="ph-fill ph-speaker-high text-base"></i>
+                            <span>朗讀跨篇比較重點</span>
+                        </button>
+                    </div>
+
+                    <!-- 考評局標準評分標註詞 (Rubric Keywords) -->
+                    <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25">
+                        <div class="text-xs font-bold text-amber-800 dark:text-amber-300 mb-2 flex items-center gap-1.5">
+                            <i class="ph-fill ph-seal-check text-base"></i>
+                            <span>考評局標準評分標註詞（答題時寫出這些關鍵術語，精準命中採分點・點擊可複製）：</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            ${topic.keywords.map(kw => `
+                                <button onclick="copyTextToClipboard('${kw}', '已複製評分詞：「${kw}」')" class="px-3 py-1 rounded-lg text-xs font-bold bg-white dark:bg-stone-800 text-paper-accent dark:text-ink-accent border border-amber-500/30 hover:scale-105 transition shadow-2xs flex items-center gap-1">
+                                    <span>#${kw}</span>
+                                    <i class="ph ph-copy text-[11px] opacity-60"></i>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 兩篇／多篇「相同點」(Similarities) -->
+                    <div class="space-y-3">
+                        <h4 class="font-serif font-bold text-base sm:text-lg text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
+                            <i class="ph-fill ph-intersect text-xl"></i>
+                            <span>一、跨篇共通點（相通之處）</span>
+                        </h4>
+                        <div class="grid grid-cols-1 gap-3">
+                            ${topic.similarities.map(sim => `
+                                <div class="p-4 rounded-xl bg-emerald-500/5 dark:bg-emerald-500/10 border-l-4 border-emerald-600 text-xs sm:text-sm text-stone-800 dark:text-stone-200 leading-relaxed">
+                                    ${sim}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 兩篇／多篇「相異點」對照矩陣 (Differences) -->
+                    <div class="space-y-3">
+                        <h4 class="font-serif font-bold text-base sm:text-lg text-paper-accent dark:text-ink-accent flex items-center gap-2">
+                            <i class="ph-fill ph-arrows-split text-xl"></i>
+                            <span>二、跨篇相異點（比較對照矩陣）</span>
+                        </h4>
+                        <div class="space-y-3">
+                            ${topic.differences.map(diff => `
+                                <div class="rounded-xl border border-paper-border dark:border-ink-border overflow-hidden">
+                                    <div class="bg-stone-100 dark:bg-stone-800 px-4 py-2 text-xs font-bold text-stone-700 dark:text-stone-200 border-b border-paper-border dark:border-ink-border">
+                                        比較維度：${diff.aspect}
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-paper-border dark:divide-ink-border bg-white dark:bg-stone-900/60">
+                                        <div class="p-4 text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed">
+                                            ${diff.textA}
+                                        </div>
+                                        <div class="p-4 text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed">
+                                            ${diff.textB}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- DSE 實戰跨篇比較題滿分示範 -->
+                    <div class="p-5 rounded-2xl bg-stone-100/90 dark:bg-stone-800/80 border border-stone-200/80 dark:border-stone-700 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-paper-accent dark:text-ink-accent flex items-center gap-1.5">
+                                <i class="ph-fill ph-exam text-base"></i>
+                                <span>DSE 跨篇比較題・滿分答題框架示範</span>
+                            </span>
+                            <button onclick="copyTextToClipboard('${topic.sampleAnswer.replace(/'/g, "\\'")}', '已複製滿分答題示範！')" class="text-xs text-stone-500 hover:text-paper-accent flex items-center gap-1">
+                                <i class="ph ph-copy"></i> 複製答案
+                            </button>
+                        </div>
+                        <div class="font-serif font-bold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+                            題目：${topic.sampleQuestion}
+                        </div>
+                        <div class="p-3.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 text-xs sm:text-sm text-stone-700 dark:text-stone-200 leading-relaxed">
+                            ${topic.sampleAnswer}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function speakMatrixTopic(topicId) {
+            const topic = CROSS_TEXT_MATRIX_DATA.find(t => t.id === topicId);
+            if (!topic) return;
+            const textToRead = `跨篇比較專題：${topic.title}。標準評分關鍵詞包括：${topic.keywords.join('、')}。共通點方面：${topic.similarities.join('。')}。實戰答題示範：${topic.sampleAnswer}`;
+            speakCustomText(textToRead);
+        }
+
+        // ==========================================
+        // 實用寫作「見解論證四步推論生成器」邏輯
+        // ==========================================
+        function initReasoningGenerator() {
+            const btnContainer = document.getElementById('scenarioButtonsContainer');
+            const chipContainer = document.getElementById('connectorChipsContainer');
+            if (!btnContainer || !chipContainer) return;
+
+            btnContainer.innerHTML = REASONING_SCENARIOS.map(sc => {
+                const isSelected = sc.id === currentScenarioId;
+                return `
+                    <button onclick="loadReasoningScenario('${sc.id}')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 ${
+                        isSelected
+                            ? 'bg-paper-accent text-white dark:bg-ink-accent shadow-xs'
+                            : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+                    }">
+                        <i class="ph-fill ph-sparkle"></i>
+                        <span>${sc.name}</span>
+                    </button>
+                `;
+            }).join('');
+
+            chipContainer.innerHTML = TRANSITION_CONNECTORS.map(c => `
+                <button onclick="copyTextToClipboard('${c.text}', '已複製過渡語：「${c.text}」')" class="px-2.5 py-1.5 rounded-lg text-xs bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 hover:border-paper-accent transition flex items-center gap-1.5 text-left">
+                    <span class="px-1.5 py-0.2 rounded bg-paper-accent/10 dark:bg-ink-accent/20 text-paper-accent dark:text-ink-accent font-bold text-[10px] shrink-0">${c.tag}</span>
+                    <span class="text-stone-700 dark:text-stone-200 font-medium">${c.text}</span>
+                </button>
+            `).join('');
+
+            // 若輸入框為空，預設載入第一個情境
+            const s1 = document.getElementById('stepInput1');
+            if (s1 && !s1.value.trim()) {
+                loadReasoningScenario(currentScenarioId, false);
+            }
+        }
+
+        function loadReasoningScenario(scenarioId, showNotice = true) {
+            currentScenarioId = scenarioId;
+            const sc = REASONING_SCENARIOS.find(s => s.id === scenarioId) || REASONING_SCENARIOS[0];
+            if (!sc) return;
+
+            document.getElementById('stepInput1').value = sc.step1;
+            document.getElementById('stepInput2').value = sc.step2;
+            document.getElementById('stepInput3').value = sc.step3;
+            document.getElementById('stepInput4').value = sc.step4;
+
+            initReasoningGenerator();
+            updateGeneratedParagraph();
+            if (showNotice) {
+                showToast(`已載入「${sc.name}」四步高分推論範本`);
+            }
+        }
+
+        function updateGeneratedParagraph() {
+            const v1 = (document.getElementById('stepInput1')?.value || '').trim();
+            const v2 = (document.getElementById('stepInput2')?.value || '').trim();
+            const v3 = (document.getElementById('stepInput3')?.value || '').trim();
+            const v4 = (document.getElementById('stepInput4')?.value || '').trim();
+
+            const fullText = `【見解論證】鑑於${v1}有見及此，我建議${v2}為使活動不流於形式，${v3}由此可見，${v4}`;
+            const previewEl = document.getElementById('generatedParagraphPreview');
+            const countEl = document.getElementById('generatedWordCount');
+            if (previewEl) previewEl.textContent = fullText;
+            if (countEl) countEl.textContent = `約 ${fullText.length} 字`;
+        }
+
+        function speakGeneratedReasoning() {
+            const text = document.getElementById('generatedParagraphPreview')?.textContent || '';
+            if (text) speakCustomText(text);
+        }
+
+        function copyGeneratedReasoning() {
+            const text = document.getElementById('generatedParagraphPreview')?.textContent || '';
+            copyTextToClipboard(text, "已複製完整「見解論證」段落！");
+        }
+
+        // 相容 iframe 的剪貼簿複製工具
+        function copyTextToClipboard(text, toastMsg) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast(toastMsg || "已複製到剪貼簿！");
+            } catch (e) {
+                showToast("複製失敗，請手動選取文字複製");
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // 從當前範文直接跳轉至該篇的字詞閃卡
+        function jumpToArticleVocab() {
+            currentVocabFilter = String(currentArticleId);
+            const selectEl = document.getElementById('vocabFilterSelect');
+            if (selectEl) selectEl.value = currentVocabFilter;
+            switchTab('vocab');
+            showToast(`已篩選：《${DSE_TEXTS.find(a => a.id === currentArticleId).title}》重點字詞`);
+        }
+
+        // 初始化字詞篩選下拉選單
+        function initVocabFilterOptions() {
+            const selectEl = document.getElementById('vocabFilterSelect');
+            if (!selectEl) return;
+            const optionsHtml = DSE_TEXTS.map(a => `<option value="${a.id}">第 ${a.id} 篇：《${a.title}》</option>`).join('');
+            selectEl.innerHTML = `<option value="all">全部 12 篇範文重點字詞 (${DSE_VOCAB_LIST.length}張)</option>` + optionsHtml;
+        }
+
+        function filterVocabByArticle(val) {
+            currentVocabFilter = val;
+            currentFocusVocabIndex = 0;
+            renderVocabSection();
+        }
+
+        function toggleVocabViewMode() {
+            isVocabFocusMode = !isVocabFocusMode;
+            const focusContainer = document.getElementById('vocabFocusContainer');
+            const gridContainer = document.getElementById('vocabGridContainer');
+            const toggleText = document.getElementById('vocabModeToggleText');
+
+            if (isVocabFocusMode) {
+                focusContainer.classList.remove('hidden');
+                gridContainer.classList.add('hidden');
+                toggleText.textContent = "切換網格總覽模式";
+                renderFocusVocabCard();
+            } else {
+                focusContainer.classList.add('hidden');
+                gridContainer.classList.remove('hidden');
+                toggleText.textContent = "切換大卡專注模式";
+            }
+        }
+
+        function highlightTargetWord(sentence) {
+            return sentence.replace(/【([^】]+)】/g, '<span class="text-paper-accent dark:text-ink-accent font-bold underline decoration-2 underline-offset-4 px-0.5">$1</span>');
+        }
+
+        function renderVocabSection() {
+            currentFocusVocabList = currentVocabFilter === 'all'
+                ? [...DSE_VOCAB_LIST]
+                : DSE_VOCAB_LIST.filter(v => String(v.articleId) === String(currentVocabFilter));
+
+            document.getElementById('vocabMasteredCount').textContent = `已掌握 ${masteredVocabIds.length} / ${DSE_VOCAB_LIST.length} 張`;
+
+            if (isVocabFocusMode) {
+                renderFocusVocabCard();
+            }
+
+            const gridEl = document.getElementById('vocabGridContainer');
+            gridEl.innerHTML = currentFocusVocabList.map(item => {
+                const isMastered = masteredVocabIds.includes(item.id);
+                return `
+                    <div onclick="this.querySelector('.card-flip-target').classList.toggle('flipped')" class="perspective-1000 cursor-pointer h-56 select-none">
+                        <div class="card-flip-target transform-style-3d relative w-full h-full">
+                            <!-- 正面 -->
+                            <div class="backface-hidden absolute inset-0 bg-paper-card dark:bg-ink-card rounded-2xl p-5 border ${isMastered ? 'border-emerald-500/50' : 'border-paper-border dark:border-ink-border'} shadow-xs flex flex-col justify-between hover:border-paper-accent transition">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 truncate">《${item.article}》</span>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <span class="text-[11px] px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-800 dark:text-amber-300 font-semibold">${item.type}</span>
+                                        ${isMastered ? '<i class="ph-fill ph-check-circle text-emerald-500 text-base" title="已掌握"></i>' : ''}
+                                    </div>
+                                </div>
+                                <div class="my-auto text-center">
+                                    <p class="font-serif text-base sm:text-lg text-stone-800 dark:text-stone-100 leading-relaxed">${highlightTargetWord(item.sentence)}</p>
+                                </div>
+                                <div class="flex items-center justify-between text-[11px] text-stone-400">
+                                    <span>目標字詞：<strong class="text-stone-700 dark:text-stone-200">${item.word}</strong></span>
+                                    <span class="text-paper-accent dark:text-ink-accent flex items-center gap-0.5"><i class="ph ph-arrows-clockwise"></i> 點擊翻看解釋</span>
+                                </div>
+                            </div>
+
+                            <!-- 背面 -->
+                            <div class="backface-hidden rotate-y-180 absolute inset-0 bg-amber-50/95 dark:bg-stone-800 rounded-2xl p-5 border-2 border-paper-accent dark:border-ink-accent shadow-xs flex flex-col justify-between">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-serif font-bold text-base text-paper-accent dark:text-ink-accent">「${item.word}」標準解釋</span>
+                                    <button onclick="event.stopPropagation(); speakCustomText('${item.sentence.replace(/【|】/g, '')}。${item.word}，解作：${item.meaning}')" class="p-1.5 rounded-lg bg-white dark:bg-stone-700 text-paper-accent dark:text-ink-accent shadow-2xs" title="語音朗讀">
+                                        <i class="ph-fill ph-speaker-high text-sm"></i>
+                                    </button>
+                                </div>
+                                <div class="my-auto space-y-1.5">
+                                    <div class="text-base font-bold text-stone-900 dark:text-stone-100">${item.meaning}</div>
+                                    <p class="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">${item.note}</p>
+                                </div>
+                                <div class="flex items-center justify-between pt-1">
+                                    <span class="text-[11px] text-stone-400">點擊卡片翻回正面</span>
+                                    <button onclick="event.stopPropagation(); toggleVocabMastered(${item.id})" class="px-2.5 py-1 rounded-lg text-xs font-bold ${isMastered ? 'bg-emerald-600 text-white' : 'border border-emerald-600 text-emerald-700 dark:text-emerald-300'}">
+                                        ${isMastered ? '✓ 已熟記' : '標記已熟記'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderFocusVocabCard() {
+            if (currentFocusVocabList.length === 0) return;
+            if (currentFocusVocabIndex >= currentFocusVocabList.length) currentFocusVocabIndex = 0;
+            const item = currentFocusVocabList[currentFocusVocabIndex];
+            const inner = document.getElementById('focusCardInner');
+            inner.classList.remove('flipped');
+
+            document.getElementById('focusCardCounter').textContent = `第 ${currentFocusVocabIndex + 1} / ${currentFocusVocabList.length} 張`;
+            document.getElementById('focusCardArticle').textContent = `《${item.article}》`;
+            document.getElementById('focusCardType').textContent = item.type;
+            document.getElementById('focusCardSentence').innerHTML = highlightTargetWord(item.sentence);
+            document.getElementById('focusCardWord').textContent = `【${item.word}】`;
+            document.getElementById('focusCardMeaning').textContent = item.meaning;
+            document.getElementById('focusCardNote').textContent = item.note;
+
+            const isMastered = masteredVocabIds.includes(item.id);
+            const masterBtn = document.getElementById('focusMasterBtn');
+            if (isMastered) {
+                masterBtn.className = "px-4 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white transition";
+                masterBtn.textContent = "✓ 已熟記（點擊取消）";
+            } else {
+                masterBtn.className = "px-4 py-1.5 rounded-xl text-xs font-bold border border-emerald-600 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-600 hover:text-white transition";
+                masterBtn.textContent = "標記「已熟記」";
+            }
+        }
+
+        function flipFocusCard() {
+            const inner = document.getElementById('focusCardInner');
+            if (inner) inner.classList.toggle('flipped');
+        }
+
+        function moveFocusCard(delta) {
+            if (currentFocusVocabList.length === 0) return;
+            currentFocusVocabIndex = (currentFocusVocabIndex + delta + currentFocusVocabList.length) % currentFocusVocabList.length;
+            renderFocusVocabCard();
+        }
+
+        function shuffleFocusCards() {
+            currentFocusVocabList.sort(() => Math.random() - 0.5);
+            currentFocusVocabIndex = 0;
+            renderFocusVocabCard();
+            showToast("已隨機洗牌閃卡順序！");
+        }
+
+        function speakCurrentFocusVocab() {
+            const item = currentFocusVocabList[currentFocusVocabIndex];
+            if (!item) return;
+            speakCustomText(`${item.sentence.replace(/【|】/g, '')}。${item.word}，意思係：${item.meaning}`);
+        }
+
+        function toggleVocabMastered(vocabId) {
+            const idx = masteredVocabIds.indexOf(vocabId);
+            if (idx > -1) {
+                masteredVocabIds.splice(idx, 1);
+                showToast("已取消熟記標記");
+            } else {
+                masteredVocabIds.push(vocabId);
+                showToast("已加入「已熟記」字詞庫！");
+            }
+            try {
+                localStorage.setItem('dse_ch_vocab_mastered', JSON.stringify(masteredVocabIds));
+            } catch (e) {}
+            renderVocabSection();
+        }
+
+        // 通用短句朗讀功能（供閃卡與實用文使用）
+        function speakCustomText(text) {
+            if (!synth) return;
+            synth.cancel();
+            const clean = normalizeTextForSpeech(text, currentLang);
+            const utter = new SpeechSynthesisUtterance(clean);
+            const selectedVoice = pickBestVoice(currentLang);
+            if (selectedVoice) {
+                utter.voice = selectedVoice;
+                utter.lang = selectedVoice.lang;
+            } else {
+                utter.lang = currentLang;
+            }
+            utter.rate = speechRates[currentRateIndex];
+            synth.speak(utter);
+        }
+
+        // ==========================================
+        // 卷二實用寫作模組渲染
+        // ==========================================
+        function renderPracticalSection() {
+            const selectorEl = document.getElementById('practicalTypeSelector');
+            selectorEl.innerHTML = PRACTICAL_WRITING_DATA.map(item => {
+                const active = item.id === currentPracticalType;
+                return `
+                    <button onclick="selectPracticalType('${item.id}')" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 ${
+                        active
+                            ? 'bg-paper-accent text-white dark:bg-ink-accent shadow-xs'
+                            : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+                    }">
+                        <span>${item.name}</span>
+                        <span class="text-[10px] px-1.5 py-0.2 rounded ${active ? 'bg-white/20 text-white' : 'bg-amber-500/15 text-amber-800 dark:text-amber-300'}">${item.badge}</span>
+                    </button>
+                `;
+            }).join('');
+
+            const currentData = PRACTICAL_WRITING_DATA.find(d => d.id === currentPracticalType) || PRACTICAL_WRITING_DATA[0];
+            document.getElementById('pracFormatTitle').textContent = `${currentData.name} 標準格式範本`;
+            document.getElementById('pracTemplateBox').innerHTML = currentData.template;
+            document.getElementById('pracToneNote').textContent = currentData.tone;
+
+            const checklistEl = document.getElementById('pracChecklistContainer');
+            checklistEl.innerHTML = currentData.checklist.map((text, idx) => `
+                <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-stone-100/70 dark:bg-stone-800/60 hover:bg-stone-200/50 cursor-pointer transition">
+                    <input type="checkbox" class="prac-check-item mt-1 w-4 h-4 accent-amber-800 rounded">
+                    <span class="text-xs sm:text-sm text-stone-700 dark:text-stone-200 leading-relaxed">${text}</span>
+                </label>
+            `).join('');
+        }
+
+        function selectPracticalType(typeId) {
+            currentPracticalType = typeId;
+            renderPracticalSection();
+        }
+
+        function resetPracChecklist() {
+            document.querySelectorAll('.prac-check-item').forEach(cb => cb.checked = false);
+            showToast("已重設自檢清單");
+        }
+
+        function speakPracticalGuide() {
+            const currentData = PRACTICAL_WRITING_DATA.find(d => d.id === currentPracticalType);
+            if (!currentData) return;
+            speakCustomText(`${currentData.name}。行文語氣要注意：${currentData.tone}。交卷前檢查要點包括：${currentData.checklist.join('；')}。`);
+        }
+
+        // ==========================================
+        // 保3升4 互動快問快答自測邏輯
+        // ==========================================
+        function startNewQuizRound() {
+            const shuffled = [...DSE_VOCAB_LIST].sort(() => Math.random() - 0.5);
+            currentQuizPool = shuffled.slice(0, 10);
+            currentQuizIndex = 0;
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            const box = document.getElementById('quizQuestionBox');
+            document.getElementById('quizScoreDisplay').textContent = `${quizCorrectCount} / ${quizTotalAnswered}`;
+
+            if (currentQuizIndex >= currentQuizPool.length) {
+                box.innerHTML = `
+                    <div class="text-center py-8 space-y-4">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto text-3xl">
+                            <i class="ph-fill ph-trophy"></i>
+                        </div>
+                        <h3 class="font-serif text-2xl font-bold text-stone-900 dark:text-stone-100">本輪 10 題挑戰完成！</h3>
+                        <p class="text-sm text-stone-600 dark:text-stone-300">累積總成績：答對 ${quizCorrectCount} / ${quizTotalAnswered} 題</p>
+                        <button onclick="startNewQuizRound()" class="px-6 py-2.5 rounded-xl bg-paper-accent dark:bg-ink-accent text-white font-bold text-sm shadow-sm hover:opacity-95 transition">
+                            再來一輪隨機 10 題
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const qItem = currentQuizPool[currentQuizIndex];
+            // 產生 3 個干擾選項
+            const distractors = DSE_VOCAB_LIST
+                .filter(v => v.id !== qItem.id)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3)
+                .map(v => v.meaning);
+
+            const options = [qItem.meaning, ...distractors].sort(() => Math.random() - 0.5);
+
+            box.innerHTML = `
+                <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400">
+                    <span>第 ${currentQuizIndex + 1} / ${currentQuizPool.length} 題・出自《${qItem.article}》</span>
+                    <span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-800 dark:text-amber-300 font-semibold">${qItem.type}</span>
+                </div>
+                <div class="p-5 rounded-2xl bg-stone-100/80 dark:bg-stone-800/70 border border-paper-border dark:border-ink-border">
+                    <div class="text-xs text-stone-400 mb-1">請選出句中標示字詞的正確解釋：</div>
+                    <p class="font-serif text-lg sm:text-2xl text-stone-900 dark:text-stone-100 leading-relaxed">${highlightTargetWord(qItem.sentence)}</p>
+                </div>
+                <div class="grid grid-cols-1 gap-2.5" id="quizOptionsContainer">
+                    ${options.map((opt, i) => `
+                        <button onclick="submitQuizAnswer(this, '${opt.replace(/'/g, "\\'")}', '${qItem.meaning.replace(/'/g, "\\'")}')" class="quiz-opt-btn w-full text-left p-3.5 sm:p-4 rounded-xl border border-paper-border dark:border-ink-border bg-paper-card dark:bg-ink-card hover:border-paper-accent dark:hover:border-ink-accent transition font-medium text-sm sm:text-base flex items-center justify-between">
+                            <span>${String.fromCharCode(65 + i)}. ${opt}</span>
+                        </button>
+                    `).join('')}
+                </div>
+                <div id="quizFeedbackBox" class="hidden p-4 rounded-xl text-xs sm:text-sm space-y-2"></div>
+            `;
+        }
+
+        function submitQuizAnswer(btnEl, selected, correct) {
+            const allBtns = document.querySelectorAll('.quiz-opt-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            const qItem = currentQuizPool[currentQuizIndex];
+            quizTotalAnswered++;
+            const isCorrect = selected === correct;
+            if (isCorrect) quizCorrectCount++;
+
+            document.getElementById('quizScoreDisplay').textContent = `${quizCorrectCount} / ${quizTotalAnswered}`;
+
+            allBtns.forEach(b => {
+                if (b.textContent.includes(correct)) {
+                    b.classList.add('border-emerald-600', 'bg-emerald-500/15', 'font-bold');
+                } else if (b === btnEl && !isCorrect) {
+                    b.classList.add('border-red-500', 'bg-red-500/15');
+                }
+            });
+
+            const fb = document.getElementById('quizFeedbackBox');
+            fb.classList.remove('hidden');
+            fb.className = `p-4 rounded-xl text-xs sm:text-sm space-y-2 ${isCorrect ? 'bg-emerald-500/15 text-emerald-900 dark:text-emerald-200 border border-emerald-500/30' : 'bg-red-500/15 text-red-900 dark:text-red-200 border border-red-500/30'}`;
+            fb.innerHTML = `
+                <div class="font-bold">${isCorrect ? '✓ 答對了！穩奪分數！' : `✗ 答錯了！正確答案是：「${correct}」`}</div>
+                <div>溫習筆記：${qItem.note}</div>
+                <div class="pt-2">
+                    <button onclick="currentQuizIndex++; renderQuizQuestion();" class="px-4 py-1.5 rounded-lg bg-paper-accent dark:bg-ink-accent text-white font-bold text-xs">
+                        下一題 →
+                    </button>
+                </div>
+            `;
+        }
+
         // 頁面卸載時停止語音
         window.addEventListener('beforeunload', () => {
             if (synth) synth.cancel();
@@ -1231,6 +2756,7 @@
                 document.getElementById('themeIcon').className = "ph-fill ph-sun text-lg sm:text-xl";
             }
 
+            initVocabFilterOptions();
             renderSidebarList();
             renderCurrentArticle();
         };
