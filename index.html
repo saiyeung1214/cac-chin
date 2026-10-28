@@ -428,7 +428,7 @@
                         <!-- JS 動態載入各篇選項 -->
                     </select>
                     <button onclick="toggleVocabViewMode()" id="vocabModeToggleBtn" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-paper-accent dark:bg-ink-accent text-white flex items-center gap-1.5 shadow-xs hover:opacity-90 transition">
-                        <i class="ph-fill ph-arrows-In-cardinal text-base"></i>
+                        <i class="ph-fill ph-arrows-in-cardinal text-base"></i>
                         <span id="vocabModeToggleText">切換大卡專注模式</span>
                     </button>
                 </div>
@@ -644,7 +644,7 @@
             <!-- 題目情境預設選擇器 -->
             <div>
                 <div class="text-xs font-bold text-stone-500 dark:text-stone-400 mb-2 flex items-center gap-1.5">
-                    <i class="ph-fill ph-Bookmarks text-paper-accent dark:text-ink-accent"></i>
+                    <i class="ph-fill ph-bookmarks text-paper-accent dark:text-ink-accent"></i>
                     <span>第一步：點選 DSE 常考題目情境（點擊載入高分推論範本）：</span>
                 </div>
                 <div id="scenarioButtonsContainer" class="flex flex-wrap gap-2">
@@ -789,7 +789,7 @@
             <!-- 當前朗讀狀態顯示 -->
             <div class="flex items-center gap-3 min-w-0 flex-1">
                 <div id="playingVisualizer" class="w-9 h-9 rounded-xl bg-paper-accent/10 dark:bg-ink-accent/20 text-paper-accent dark:text-ink-accent flex items-center justify-center shrink-0">
-                    <i id="playerStateIcon" class="ph-fill ph-Waveform text-xl"></i>
+                    <i id="playerStateIcon" class="ph-fill ph-waveform text-xl"></i>
                     <div id="equalizerBars" class="hidden items-end gap-0.5 h-4">
                         <span class="w-1 bg-paper-accent dark:bg-ink-accent rounded-full eq-bar-1"></span>
                         <span class="w-1 bg-paper-accent dark:bg-ink-accent rounded-full eq-bar-2"></span>
@@ -829,6 +829,11 @@
 
             <!-- 右側語速與連續播放控制 -->
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <!-- 測試發聲按鈕 -->
+                <button onclick="testAudioVoice()" class="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-amber-500/15 text-amber-800 dark:bg-amber-400/20 dark:text-amber-300 hover:opacity-85 transition border border-amber-500/30 hidden md:flex items-center gap-1" title="測試語音發聲是否正常">
+                    <i class="ph-fill ph-speaker-high"></i>
+                    <span>試音</span>
+                </button>
                 <!-- 語速調節 -->
                 <button id="speedBtn" onclick="cycleSpeed()" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-stone-200/80 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-300/70 dark:hover:bg-stone-700 transition border border-stone-300/50 dark:border-stone-700" title="調整朗讀語速">
                     1.0x
@@ -1458,10 +1463,19 @@
             masteredVocabIds = [];
         }
 
-        // Web Speech API 合成器
-        const synth = window.speechSynthesis;
+        // =========================================================================
+        // 強化版跨平台 Web Speech API 語音合成引擎
+        // 解決：1. 長段落超過 15 秒中斷 2. GC 垃圾回收導致無聲 3. cancel() 緊接 speak() 吞字
+        //       4. 部分設備缺少粵語時完全靜音 5. iOS/Android 暫停後無法恢復
+        // =========================================================================
+        const synth = ('speechSynthesis' in window) ? window.speechSynthesis : null;
         let availableVoices = [];
-        let activeUtterance = null;
+        // 使用全域陣列保存 Utterance 參考，防止瀏覽器 Garbage Collection 提早回收導致讀到一半斷聲
+        window.__ttsUtterancePool = [];
+        let currentSpeechSessionId = 0;
+        let currentSentenceQueue = [];
+        let currentSentenceIndex = 0;
+        let keepAliveInterval = null;
 
         /**
          * 語音發音校正字典（針對文言文通假字及特殊讀音優化 TTS 朗讀準確度）
@@ -1471,7 +1485,9 @@
                 // 移除開頭編號如 "1. ", "16. "
                 .replace(/^\d+\.\s*/, '')
                 // 移除括號出處如 （《里仁》第四）以令朗讀更流暢自然
-                .replace(/（《[^）]+》[^）]*）/g, '');
+                .replace(/（《[^）]+》[^）]*）/g, '')
+                // 將破折號、特殊符號轉為頓號或逗號，避免部分語音包卡頓
+                .replace(/[—・]/g, '，');
 
             if (lang === 'zh-HK') {
                 // 廣東話常見文言特殊讀音輔助替換
@@ -1516,34 +1532,136 @@
             return clean;
         }
 
-        // 載入系統語音列表
-        function loadVoices() {
-            if (!synth) return;
-            availableVoices = synth.getVoices();
+        // 將長段落按標點切分為短句（每句不超過 80 字），徹底解決 Chrome/Android 超過 15 秒自動斷音問題
+        function splitIntoSpeechChunks(text) {
+            const rawParts = text
+                .replace(/([。！？；！？\n]+)/g, '$1|')
+                .split('|')
+                .map(s => s.trim())
+                .filter(s => s.length > 0);
+
+            const chunks = [];
+            for (const part of rawParts) {
+                if (part.length <= 75) {
+                    chunks.push(part);
+                } else {
+                    // 若單句仍太長，再按逗號切分
+                    const subParts = part.replace(/([，、：]+)/g, '$1|').split('|').map(s => s.trim()).filter(Boolean);
+                    let temp = '';
+                    for (const sub of subParts) {
+                        if ((temp + sub).length <= 75) {
+                            temp += sub;
+                        } else {
+                            if (temp) chunks.push(temp);
+                            temp = sub;
+                        }
+                    }
+                    if (temp) chunks.push(temp);
+                }
+            }
+            return chunks.length > 0 ? chunks : [text];
         }
+
+        // 載入系統語音列表（支援異步重試）
+        function loadVoices() {
+            if (!synth) return [];
+            const voices = synth.getVoices();
+            if (voices && voices.length > 0) {
+                availableVoices = voices;
+            }
+            return availableVoices;
+        }
+
         if (synth) {
             loadVoices();
-            if (speechSynthesis.onvoiceschanged !== undefined) {
-                speechSynthesis.onvoiceschanged = loadVoices;
+            if (typeof synth.onvoiceschanged !== 'undefined') {
+                synth.onvoiceschanged = () => {
+                    loadVoices();
+                };
+            }
+            // 定時輪詢確保部分行動瀏覽器延遲載入語音包時也能抓到
+            setTimeout(loadVoices, 300);
+            setTimeout(loadVoices, 1000);
+        }
+
+        // 根據廣東話或普通話挑選最合適的系統語音（具備完善後備機制，防止無該語音時靜音）
+        function pickBestVoice(langCode) {
+            const voices = loadVoices();
+            if (!voices || voices.length === 0) return { voice: null, fallbackUsed: false };
+
+            const normLang = v => (v.lang || '').replace('_', '-').toLowerCase();
+            const normName = v => (v.name || '').toLowerCase();
+
+            if (langCode === 'zh-HK') {
+                // 1. 優先尋找高品質香港粵語語音
+                const hkPremium = voices.find(v =>
+                    (normLang(v).includes('hk') || normLang(v).includes('yue')) &&
+                    (normName(v).includes('natural') || normName(v).includes('premium') || normName(v).includes('sin-ji') || normName(v).includes('sinji') || normName(v).includes('hiugaai') || normName(v).includes('hiujin'))
+                );
+                if (hkPremium) return { voice: hkPremium, fallbackUsed: false };
+
+                // 2. 任何包含 hk / yue / cantonese / 粵 / 廣東 的語音
+                const hkAny = voices.find(v =>
+                    normLang(v).includes('hk') ||
+                    normLang(v).includes('yue') ||
+                    normName(v).includes('cantonese') ||
+                    normName(v).includes('hong kong') ||
+                    v.name.includes('粵') ||
+                    v.name.includes('廣東') ||
+                    v.name.includes('香港')
+                );
+                if (hkAny) return { voice: hkAny, fallbackUsed: false };
+
+                // 3. 若用戶裝置完全未安裝廣東話語音包，自動降級使用台灣或普通話中文語音，確保必定有聲！
+                const zhFallback = voices.find(v => normLang(v).includes('zh-tw')) ||
+                                   voices.find(v => normLang(v).startsWith('zh') || normLang(v).includes('cmn'));
+                return { voice: zhFallback || null, fallbackUsed: !!zhFallback };
+            } else {
+                // 普通話優先尋找高品質國語/普通話語音
+                const cnPremium = voices.find(v =>
+                    (normLang(v) === 'zh-cn' || normLang(v) === 'zh-tw' || normLang(v).includes('cmn')) &&
+                    (normName(v).includes('natural') || normName(v).includes('xiaoxiao') || normName(v).includes('yunxi') || normName(v).includes('ting-ting') || normName(v).includes('tingting') || normName(v).includes('meijia') || normName(v).includes('mei-jia'))
+                );
+                if (cnPremium) return { voice: cnPremium, fallbackUsed: false };
+
+                const cnAny = voices.find(v =>
+                    normLang(v) === 'zh-cn' ||
+                    normLang(v) === 'zh-tw' ||
+                    normLang(v) === 'zh-sg' ||
+                    normLang(v).includes('cmn') ||
+                    (normLang(v).startsWith('zh') && !normLang(v).includes('hk') && !normLang(v).includes('yue'))
+                );
+                if (cnAny) return { voice: cnAny, fallbackUsed: false };
+
+                const anyZh = voices.find(v => normLang(v).startsWith('zh'));
+                return { voice: anyZh || null, fallbackUsed: false };
             }
         }
 
-        // 根據廣東話或普通話挑選最合適的系統語音
-        function pickBestVoice(langCode) {
-            if (!availableVoices || availableVoices.length === 0) {
-                availableVoices = synth ? synth.getVoices() : [];
+        // 啟動保活計時器（解決桌面版 Chrome 連續播放時無故卡死問題）
+        function startSpeechKeepAlive() {
+            stopSpeechKeepAlive();
+            keepAliveInterval = setInterval(() => {
+                if (synth && isPlaying && !isPaused && synth.speaking) {
+                    synth.pause();
+                    synth.resume();
+                }
+            }, 10000);
+        }
+
+        function stopSpeechKeepAlive() {
+            if (keepAliveInterval) {
+                clearInterval(keepAliveInterval);
+                keepAliveInterval = null;
             }
-            if (langCode === 'zh-HK') {
-                // 優先尋找 zh-HK / yue-HK / 廣東話 / Cantonese
-                return availableVoices.find(v => v.lang.toLowerCase() === 'zh-hk' && (v.name.includes('Natural') || v.name.includes('Premium') || v.name.includes('Sin-ji') || v.name.includes('HiuGaai')))
-                    || availableVoices.find(v => v.lang.toLowerCase().includes('hk') || v.lang.toLowerCase().includes('yue') || v.name.toLowerCase().includes('cantonese') || v.name.includes('粵') || v.name.includes('廣東'))
-                    || null;
-            } else {
-                // 普通話優先尋找 zh-CN / zh-TW
-                return availableVoices.find(v => (v.lang.toLowerCase() === 'zh-cn' || v.lang.toLowerCase() === 'zh-tw') && (v.name.includes('Natural') || v.name.includes('Xiaoxiao') || v.name.includes('Ting-Ting')))
-                    || availableVoices.find(v => v.lang.toLowerCase() === 'zh-cn' || v.lang.toLowerCase() === 'zh-tw' || v.lang.toLowerCase().startsWith('zh'))
-                    || null;
-            }
+        }
+
+        // 測試發聲按鈕功能
+        function testAudioVoice() {
+            const sample = currentLang === 'zh-HK'
+                ? "宣中中文範文隨身聽，廣東話語音發聲正常。學不可以已。"
+                : "宣中中文範文隨身聽，普通話語音發聲正常。學不可以已。";
+            speakCustomText(sample, true);
         }
 
         // 渲染左側 12 篇範文列表
@@ -1735,7 +1853,7 @@
             speakParagraph(0);
         }
 
-        // 朗讀指定段落
+        // 朗讀指定段落（採用分段佇列與防吞字安全機制）
         function speakParagraph(index) {
             if (!synth) {
                 showToast("你的瀏覽器不支援語音朗讀功能");
@@ -1748,8 +1866,12 @@
                 return;
             }
 
-            // 取消現有語音
-            synth.cancel();
+            // 遞增 Session ID 以廢棄舊的非同步回呼
+            const sessionId = ++currentSpeechSessionId;
+
+            try {
+                synth.cancel();
+            } catch (e) {}
 
             currentParagraphIndex = index;
             isPlaying = true;
@@ -1759,60 +1881,104 @@
             const rawToRead = (para.subheading ? para.subheading + '。' : '') + para.text;
             const processedText = normalizeTextForSpeech(rawToRead, currentLang);
 
-            const utterance = new SpeechSynthesisUtterance(processedText);
-            activeUtterance = utterance;
+            // 將長段落切分為短句佇列，確保長文如《廉頗藺相如列傳》不會讀到一半斷聲
+            currentSentenceQueue = splitIntoSpeechChunks(processedText);
+            currentSentenceIndex = 0;
 
-            const selectedVoice = pickBestVoice(currentLang);
+            highlightActiveParagraph(index);
+            updatePlayerControlsUI();
+            updateAudioProgressUI();
+            startSpeechKeepAlive();
+
+            // 延遲 50ms 後開始朗讀第一句，避免 Chrome/Safari 在 cancel() 後立即 speak() 被靜音
+            setTimeout(() => {
+                if (sessionId !== currentSpeechSessionId) return;
+                speakNextSentenceInQueue(sessionId, article);
+            }, 50);
+        }
+
+        // 依序朗讀當前段落內的短句佇列
+        function speakNextSentenceInQueue(sessionId, article) {
+            if (sessionId !== currentSpeechSessionId || !isPlaying || isPaused) return;
+
+            if (currentSentenceIndex >= currentSentenceQueue.length) {
+                // 當前段落所有句子已讀完，進入下一段
+                if (currentParagraphIndex + 1 < article.paragraphs.length) {
+                    speakParagraph(currentParagraphIndex + 1);
+                } else {
+                    // 全篇朗讀完畢，自動標記已溫習
+                    if (!completedIds.includes(currentArticleId)) {
+                        completedIds.push(currentArticleId);
+                        saveCompletedIds();
+                    }
+                    if (autoNextArticle && currentArticleId < DSE_TEXTS.length) {
+                        showToast(`即將自動播放下一篇：《${DSE_TEXTS[currentArticleId].title}》`);
+                        selectArticle(currentArticleId + 1, true);
+                    } else {
+                        stopReading();
+                        showToast(`《${article.title}》全文朗讀完畢！`);
+                    }
+                }
+                return;
+            }
+
+            const chunkText = currentSentenceQueue[currentSentenceIndex];
+            const utterance = new SpeechSynthesisUtterance(chunkText);
+
+            // 防止垃圾回收器回收正在播放的 Utterance
+            window.__ttsUtterancePool.push(utterance);
+            if (window.__ttsUtterancePool.length > 15) {
+                window.__ttsUtterancePool.shift();
+            }
+
+            const { voice: selectedVoice, fallbackUsed } = pickBestVoice(currentLang);
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
                 utterance.lang = selectedVoice.lang;
+                if (fallbackUsed && currentSentenceIndex === 0 && currentParagraphIndex === 0) {
+                    showToast("此裝置未安裝廣東話語音包，已自動使用預設中文語音朗讀");
+                }
             } else {
                 utterance.lang = currentLang;
             }
 
             utterance.rate = speechRates[currentRateIndex];
             utterance.pitch = 1.0;
+            utterance.volume = 1.0;
 
             utterance.onstart = () => {
+                if (sessionId !== currentSpeechSessionId) return;
                 isPlaying = true;
                 isPaused = false;
-                highlightActiveParagraph(index);
                 updatePlayerControlsUI();
-                updateAudioProgressUI();
             };
 
             utterance.onend = () => {
-                // 自動進入下一段
+                if (sessionId !== currentSpeechSessionId) return;
                 if (isPlaying && !isPaused) {
-                    if (currentParagraphIndex + 1 < article.paragraphs.length) {
-                        speakParagraph(currentParagraphIndex + 1);
-                    } else {
-                        // 全篇朗讀完畢，自動標記已溫習
-                        if (!completedIds.includes(currentArticleId)) {
-                            completedIds.push(currentArticleId);
-                            saveCompletedIds();
-                        }
-                        if (autoNextArticle && currentArticleId < DSE_TEXTS.length) {
-                            showToast(`即將自動播放下一篇：《${DSE_TEXTS[currentArticleId].title}》`);
-                            selectArticle(currentArticleId + 1, true);
-                        } else {
-                            stopReading();
-                            showToast(`《${article.title}》全文朗讀完畢！`);
-                        }
-                    }
+                    currentSentenceIndex++;
+                    speakNextSentenceInQueue(sessionId, article);
                 }
             };
 
             utterance.onerror = (e) => {
-                if (e.error !== 'interrupted' && e.error !== 'canceled') {
+                if (sessionId !== currentSpeechSessionId) return;
+                if (e.error === 'interrupted' || e.error === 'canceled') return;
+                // 若單句因語音包問題報錯，嘗試跳過該小句或改用基本設定重試
+                currentSentenceIndex++;
+                if (currentSentenceIndex < currentSentenceQueue.length) {
+                    speakNextSentenceInQueue(sessionId, article);
+                } else {
                     stopReading();
                 }
             };
 
-            synth.speak(utterance);
-            highlightActiveParagraph(index);
-            updatePlayerControlsUI();
-            updateAudioProgressUI();
+            try {
+                if (synth.paused) synth.resume();
+                synth.speak(utterance);
+            } catch (err) {
+                stopReading();
+            }
         }
 
         // 高亮並滾動至正在朗讀的段落
@@ -1842,32 +2008,46 @@
             renderSidebarList(document.getElementById('searchInput').value);
         }
 
-        // 播放 / 暫停切換
+        // 播放 / 暫停切換（兼容行動裝置與桌面瀏覽器）
         function togglePlayPause() {
-            if (!synth) return;
+            if (!synth) {
+                showToast("你的瀏覽器不支援語音朗讀功能");
+                return;
+            }
 
             if (!isPlaying) {
                 speakParagraph(currentParagraphIndex);
             } else if (isPaused) {
-                synth.resume();
                 isPaused = false;
-                // 部分行動瀏覽器 resume 無效時自動重讀該段
+                const article = DSE_TEXTS.find(a => a.id === currentArticleId);
+                synth.resume();
+                startSpeechKeepAlive();
+                // 許多行動瀏覽器（iOS Safari / Android Chrome）在 pause 後 resume 會失效，因此檢測若未在發聲則直接從當前小句續播
                 setTimeout(() => {
-                    if (!synth.speaking) {
-                        speakParagraph(currentParagraphIndex);
+                    if (isPlaying && !isPaused && !synth.speaking) {
+                        const sessionId = ++currentSpeechSessionId;
+                        speakNextSentenceInQueue(sessionId, article);
                     }
-                }, 150);
+                }, 120);
                 updatePlayerControlsUI();
             } else {
-                synth.pause();
                 isPaused = true;
+                stopSpeechKeepAlive();
+                synth.pause();
                 updatePlayerControlsUI();
             }
         }
 
         // 停止朗讀
         function stopReading() {
-            if (synth) synth.cancel();
+            currentSpeechSessionId++;
+            stopSpeechKeepAlive();
+            if (synth) {
+                try {
+                    synth.cancel();
+                } catch (e) {}
+            }
+            window.__ttsUtterancePool = [];
             isPlaying = false;
             isPaused = false;
             highlightActiveParagraph(-1);
@@ -2583,21 +2763,68 @@
             renderVocabSection();
         }
 
-        // 通用短句朗讀功能（供閃卡與實用文使用）
-        function speakCustomText(text) {
-            if (!synth) return;
-            synth.cancel();
-            const clean = normalizeTextForSpeech(text, currentLang);
-            const utter = new SpeechSynthesisUtterance(clean);
-            const selectedVoice = pickBestVoice(currentLang);
-            if (selectedVoice) {
-                utter.voice = selectedVoice;
-                utter.lang = selectedVoice.lang;
-            } else {
-                utter.lang = currentLang;
+        // 通用短句/跨篇重點朗讀功能（供閃卡、思維矩陣與實用文使用，同樣支援分段佇列與防吞字）
+        function speakCustomText(text, showNotice = false) {
+            if (!synth) {
+                showToast("你的瀏覽器不支援語音朗讀功能");
+                return;
             }
-            utter.rate = speechRates[currentRateIndex];
-            synth.speak(utter);
+
+            const sessionId = ++currentSpeechSessionId;
+            isPlaying = false;
+            isPaused = false;
+            highlightActiveParagraph(-1);
+            updatePlayerControlsUI();
+
+            try {
+                synth.cancel();
+            } catch (e) {}
+
+            const clean = normalizeTextForSpeech(text, currentLang);
+            const chunks = splitIntoSpeechChunks(clean);
+            let idx = 0;
+
+            if (showNotice) {
+                showToast(`正在朗讀（${currentLang === 'zh-HK' ? '廣東話' : '普通話'}）...`);
+            }
+
+            setTimeout(() => {
+                if (sessionId !== currentSpeechSessionId) return;
+
+                function playNextChunk() {
+                    if (sessionId !== currentSpeechSessionId || idx >= chunks.length) return;
+                    const utter = new SpeechSynthesisUtterance(chunks[idx]);
+                    window.__ttsUtterancePool.push(utter);
+                    if (window.__ttsUtterancePool.length > 15) window.__ttsUtterancePool.shift();
+
+                    const { voice: selectedVoice } = pickBestVoice(currentLang);
+                    if (selectedVoice) {
+                        utter.voice = selectedVoice;
+                        utter.lang = selectedVoice.lang;
+                    } else {
+                        utter.lang = currentLang;
+                    }
+                    utter.rate = speechRates[currentRateIndex];
+                    utter.pitch = 1.0;
+                    utter.volume = 1.0;
+
+                    utter.onend = () => {
+                        if (sessionId !== currentSpeechSessionId) return;
+                        idx++;
+                        playNextChunk();
+                    };
+                    utter.onerror = () => {
+                        if (sessionId !== currentSpeechSessionId) return;
+                        idx++;
+                        playNextChunk();
+                    };
+
+                    if (synth.paused) synth.resume();
+                    synth.speak(utter);
+                }
+
+                playNextChunk();
+            }, 50);
         }
 
         // ==========================================
