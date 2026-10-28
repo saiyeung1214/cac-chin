@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="zh-HK" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>宣中中文範文隨身聽</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Noto Serif TC"', '"Songti TC"', 'PMingLiU', 'serif'],
+                        sans: ['"Inter"', '"Noto Sans TC"', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        paper: {
+                            light: '#FAF7F2',
+                            card: '#FFFFFF',
+                            border: '#E6E0D6',
+                            accent: '#8C2D19',
+                            accentLight: '#F9ECE9'
+                        },
+                        ink: {
+                            dark: '#141413',
+                            card: '#1E1E1C',
+                            border: '#2E2E2B',
+                            accent: '#E06D53'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        /* 自定義滾動條與動畫細節 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.7);
+        }
+
+        /* 段落朗讀高亮動畫 */
+        .para-active {
+            background-color: rgba(140, 45, 25, 0.08);
+            border-left: 4px solid #8C2D19;
+            padding-left: 1rem !important;
+            transition: all 0.25s ease;
+        }
+        .dark .para-active {
+            background-color: rgba(224, 109, 83, 0.14);
+            border-left: 4px solid #E06D53;
+        }
+
+        /* 背誦遮罩模式 (Recitation Blur Mode) */
+        .recite-mode .para-text {
+            filter: blur(7px);
+            user-select: none;
+            transition: filter 0.3s ease;
+        }
+        .recite-mode .para-text:hover,
+        .recite-mode .para-text.revealed,
+        .recite-mode .para-active .para-text {
+            filter: blur(0);
+            user-select: auto;
+        }
+
+        /* 音樂律動動畫 */
+        @keyframes equalize {
+            0%, 100% { height: 4px; }
+            50% { height: 16px; }
+        }
+        .eq-bar-1 { animation: equalize 0.8s infinite ease-in-out 0.1s; }
+        .eq-bar-2 { animation: equalize 0.8s infinite ease-in-out 0.3s; }
+        .eq-bar-3 { animation: equalize 0.8s infinite ease-in-out 0.5s; }
+    </style>
+</head>
+<body class="bg-paper-light text-stone-800 dark:bg-ink-dark dark:text-stone-200 font-sans antialiased selection:bg-amber-900/20 dark:selection:bg-amber-500/30 transition-colors duration-300 min-h-screen flex flex-col">
+
+    <!-- 頂部導航欄 Header -->
+    <header class="sticky top-0 z-30 bg-paper-light/90 dark:bg-ink-dark/90 backdrop-blur-md border-b border-paper-border dark:border-ink-border transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
+            
+            <!-- 左側：手機版目錄按鈕 + 標題 -->
+            <div class="flex items-center gap-2.5">
+                <button id="mobileMenuBtn" onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-xl hover:bg-stone-200/60 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 transition" aria-label="打開篇目列表">
+                    <i class="ph ph-list text-2xl"></i>
+                </button>
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-paper-accent dark:bg-ink-accent flex items-center justify-center text-white font-serif font-bold text-lg shadow-sm">
+                        宣
+                    </div>
+                    <div>
+                        <h1 class="font-serif font-bold text-base sm:text-lg leading-tight tracking-wide text-stone-900 dark:text-stone-100">
+                            宣中中文範文隨身聽
+                        </h1>
+                        <p class="text-[11px] text-stone-500 dark:text-stone-400 hidden sm:block">DSE 十二篇指定文言經典・隨時看與聽</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側：控制面板（粵/普、字體大小、背誦遮罩、黑白模式） -->
+            <div class="flex items-center gap-1.5 sm:gap-2.5">
+                
+                <!-- 廣東話 / 普通話 切換 -->
+                <div class="bg-stone-200/80 dark:bg-stone-800 p-1 rounded-xl flex items-center text-xs sm:text-sm font-medium border border-stone-300/50 dark:border-stone-700">
+                    <button id="langCantonese" onclick="setLanguage('zh-HK')" class="px-2.5 py-1 rounded-lg transition-all bg-white dark:bg-stone-700 text-paper-accent dark:text-ink-accent shadow-sm font-semibold">
+                        廣東話
+                    </button>
+                    <button id="langMandarin" onclick="setLanguage('zh-CN')" class="px-2.5 py-1 rounded-lg transition-all text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200">
+                        普通話
+                    </button>
+                </div>
+
+                <!-- 字體大小調節 -->
+                <div class="flex items-center bg-stone-200/80 dark:bg-stone-800 p-1 rounded-xl border border-stone-300/50 dark:border-stone-700">
+                    <button onclick="changeFontSize(-1)" class="w-7 h-7 sm:w-8 sm:h-7 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition text-xs font-bold" title="縮小字體">
+                        A-
+                    </button>
+                    <span id="fontSizeIndicator" class="text-xs px-1.5 text-stone-500 dark:text-stone-400 hidden md:inline-block select-none">中</span>
+                    <button onclick="changeFontSize(1)" class="w-7 h-7 sm:w-8 sm:h-7 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 transition text-sm font-bold" title="放大字體">
+                        A+
+                    </button>
+                </div>
+
+                <!-- 背誦遮罩模式按鈕 -->
+                <button id="reciteModeBtn" onclick="toggleReciteMode()" class="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-stone-300/80 dark:border-stone-700 hover:bg-stone-200/60 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 transition flex items-center gap-1.5 text-xs sm:text-sm font-medium" title="背誦遮罩模式：隱藏內文，點擊或朗讀時顯示">
+                    <i class="ph ph-eye-slash text-lg" id="reciteIcon"></i>
+                    <span class="hidden md:inline" id="reciteLabel">背誦模式</span>
+                </button>
+
+                <!-- 黑/白模式切換按鈕 -->
+                <button id="themeToggleBtn" onclick="toggleTheme()" class="p-2 rounded-xl bg-stone-200/80 dark:bg-stone-800 border border-stone-300/50 dark:border-stone-700 text-stone-700 dark:text-amber-400 hover:scale-105 transition" title="切換黑/白模式" aria-label="切換黑/白模式">
+                    <i id="themeIcon" class="ph ph-moon text-lg sm:text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主體內容區 Main Layout -->
+    <div class="flex-1 max-w-7xl w-full mx-auto flex relative pb-28">
+        
+        <!-- 手機版側邊欄遮罩 -->
+        <div id="sidebarBackdrop" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 hidden lg:hidden transition-opacity"></div>
+
+        <!-- 左側目錄欄 Sidebar -->
+        <aside id="sidebar" class="fixed lg:sticky top-16 left-0 z-40 w-72 sm:w-80 h-[calc(100vh-4rem)] bg-paper-light dark:bg-ink-dark border-r border-paper-border dark:border-ink-border flex flex-col transition-transform duration-300 -translate-x-full lg:translate-x-0 shrink-0">
+            
+            <!-- 搜尋與統計欄 -->
+            <div class="p-3.5 border-b border-paper-border dark:border-ink-border space-y-2.5">
+                <div class="relative">
+                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-stone-400"></i>
+                    <input id="searchInput" type="text" oninput="handleSearch(this.value)" placeholder="搜尋篇名、作者或文句..." class="w-full pl-9 pr-8 py-2 text-sm rounded-xl bg-white dark:bg-ink-card border border-paper-border dark:border-ink-border focus:outline-none focus:ring-2 focus:ring-paper-accent dark:focus:ring-ink-accent text-stone-800 dark:text-stone-100 placeholder-stone-400">
+                    <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                        <i class="ph ph-x-circle"></i>
+                    </button>
+                </div>
+                <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 px-1">
+                    <span>指定文言經典精讀 (12篇)</span>
+                    <span id="readProgressBadge" class="text-paper-accent dark:text-ink-accent font-medium">已溫習 0/12</span>
+                </div>
+            </div>
+
+            <!-- 12篇範文列表 -->
+            <nav id="textListContainer" class="flex-1 overflow-y-auto p-2.5 space-y-1">
+                <!-- 由 JS 動態渲染 -->
+            </nav>
+
+            <!-- 側邊欄底部版權資訊 -->
+            <div class="p-3 border-t border-paper-border dark:border-ink-border bg-stone-100/60 dark:bg-stone-900/40 text-[11px] text-stone-500 dark:text-stone-400 text-center space-y-0.5">
+                <div class="font-medium text-stone-600 dark:text-stone-300">版權所有：CAC LAWSIR</div>
+                <div>
+                    <a href="mailto:lsy@cactm.edu.hk" class="hover:text-paper-accent dark:hover:text-ink-accent underline decoration-stone-300 dark:decoration-stone-700 transition">lsy@cactm.edu.hk</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右側閱讀與聽讀區 Reading Area -->
+        <main class="flex-1 min-w-0 px-4 sm:px-8 lg:px-12 pt-6 pb-16">
+            
+            <!-- 篇章頂部資訊卡 -->
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-paper-card dark:bg-ink-card rounded-2xl p-5 sm:p-7 border border-paper-border dark:border-ink-border shadow-xs mb-6 transition-colors duration-300">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-2">
+                            <span id="articleNumberBadge" class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-paper-accent/10 dark:bg-ink-accent/20 text-paper-accent dark:text-ink-accent">
+                                第 1 篇
+                            </span>
+                            <span id="articleDynastyBadge" class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400">
+                                先秦
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="markCompletedBtn" onclick="toggleMarkCompleted()" class="px-3 py-1 rounded-xl text-xs font-medium border border-stone-300 dark:border-stone-700 flex items-center gap-1.5 hover:bg-stone-100 dark:hover:bg-stone-800 transition">
+                                <i id="markCompletedIcon" class="ph ph-check-circle text-base"></i>
+                                <span id="markCompletedText">標記已溫習</span>
+                            </button>
+                            <button onclick="playFromStart()" class="px-3.5 py-1 rounded-xl text-xs font-semibold bg-paper-accent dark:bg-ink-accent text-white flex items-center gap-1.5 hover:opacity-90 transition shadow-xs">
+                                <i class="ph-fill ph-play text-sm"></i>
+                                <span>全文朗讀</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <h2 id="articleTitle" class="font-serif text-2xl sm:text-3xl font-bold text-stone-900 dark:text-stone-100 mb-1.5">
+                        論仁、論孝、論君子
+                    </h2>
+                    <p id="articleAuthor" class="text-sm sm:text-base text-stone-600 dark:text-stone-400 font-serif mb-4">
+                        《論語》
+                    </p>
+
+                    <!-- 題解 / 核心主旨摺疊區 -->
+                    <div class="bg-stone-100/80 dark:bg-stone-800/60 rounded-xl p-3.5 sm:p-4 border border-stone-200/70 dark:border-stone-700/60">
+                        <div class="flex items-center gap-1.5 text-xs font-bold text-paper-accent dark:text-ink-accent mb-1">
+                            <i class="ph-fill ph-lightbulb-filament text-sm"></i>
+                            <span>DSE 核心主旨與溫習重點</span>
+                        </div>
+                        <p id="articleSummary" class="text-xs sm:text-sm text-stone-700 dark:text-stone-300 leading-relaxed">
+                            <!-- JS 動態載入 -->
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 互動提示條 -->
+                <div class="flex items-center justify-between text-xs text-stone-500 dark:text-stone-400 mb-4 px-1">
+                    <span class="flex items-center gap-1.5">
+                        <i class="ph ph-hand-tap text-sm text-paper-accent dark:text-ink-accent"></i>
+                        點擊任何一個段落即可從該段開始朗讀
+                    </span>
+                    <span id="paragraphCountInfo">共 16 段</span>
+                </div>
+
+                <!-- 範文正文段落區 -->
+                <article id="articleContent" class="bg-paper-card dark:bg-ink-card rounded-2xl p-5 sm:p-8 border border-paper-border dark:border-ink-border shadow-xs space-y-5 font-serif transition-colors duration-300">
+                    <!-- JS 動態渲染段落 -->
+                </article>
+
+                <!-- 底部註記與上/下一篇切換按鈕 -->
+                <div class="mt-6 space-y-4">
+                    <p class="text-xs text-stone-400 dark:text-stone-500 text-center">
+                        註：以上僅就考評局坊間所見資料提供參考版本；已補全原件掃描缺字（如「洴澼絖」、「蚯蚓」、「驩」、「缶」等）。
+                    </p>
+                    <div class="flex items-center justify-between gap-4 pt-2">
+                        <button id="prevArticleBtn" onclick="navigateArticle(-1)" class="flex-1 py-3 px-4 rounded-xl bg-paper-card dark:bg-ink-card border border-paper-border dark:border-ink-border hover:border-paper-accent dark:hover:border-ink-accent transition flex items-center gap-2 text-left group">
+                            <i class="ph ph-caret-left text-lg text-stone-400 group-hover:text-paper-accent dark:group-hover:text-ink-accent"></i>
+                            <div class="min-w-0">
+                                <div class="text-[11px] text-stone-400">上一篇</div>
+                                <div id="prevArticleTitle" class="text-sm font-serif font-semibold truncate text-stone-700 dark:text-stone-200">—</div>
+                            </div>
+                        </button>
+                        <button id="nextArticleBtn" onclick="navigateArticle(1)" class="flex-1 py-3 px-4 rounded-xl bg-paper-card dark:bg-ink-card border border-paper-border dark:border-ink-border hover:border-paper-accent dark:hover:border-ink-accent transition flex items-center justify-end gap-2 text-right group">
+                            <div class="min-w-0">
+                                <div class="text-[11px] text-stone-400">下一篇</div>
+                                <div id="nextArticleTitle" class="text-sm font-serif font-semibold truncate text-stone-700 dark:text-stone-200">—</div>
+                            </div>
+                            <i class="ph ph-caret-right text-lg text-stone-400 group-hover:text-paper-accent dark:group-hover:text-ink-accent"></i>
+                        </button>
+                    </div>
+
+                    <!-- 頁尾版權宣告 Footer -->
+                    <footer class="pt-6 pb-2 border-t border-paper-border dark:border-ink-border text-center text-xs text-stone-500 dark:text-stone-400 space-y-1">
+                        <p class="font-serif font-semibold text-stone-700 dark:text-stone-300">宣中中文範文隨身聽</p>
+                        <p>
+                            版權所有：CAC LAWSIR ｜ 電郵：<a href="mailto:lsy@cactm.edu.hk" class="text-paper-accent dark:text-ink-accent hover:underline font-medium">lsy@cactm.edu.hk</a>
+                        </p>
+                    </footer>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 底部常駐語音播放控制列 Sticky Audio Player -->
+    <div class="fixed bottom-0 inset-x-0 z-30 bg-paper-card/95 dark:bg-ink-card/95 backdrop-blur-md border-t border-paper-border dark:border-ink-border shadow-lg transition-colors duration-300">
+        <!-- 進度條 -->
+        <div class="w-full bg-stone-200 dark:bg-stone-800 h-1 cursor-pointer" onclick="seekParagraphByBar(event)">
+            <div id="audioProgressBar" class="bg-paper-accent dark:bg-ink-accent h-1 transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <div class="max-w-5xl mx-auto px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2 sm:gap-4">
+            
+            <!-- 當前朗讀狀態顯示 -->
+            <div class="flex items-center gap-3 min-w-0 flex-1">
+                <div id="playingVisualizer" class="w-9 h-9 rounded-xl bg-paper-accent/10 dark:bg-ink-accent/20 text-paper-accent dark:text-ink-accent flex items-center justify-center shrink-0">
+                    <i id="playerStateIcon" class="ph-fill ph-Waveform text-xl"></i>
+                    <div id="equalizerBars" class="hidden items-end gap-0.5 h-4">
+                        <span class="w-1 bg-paper-accent dark:bg-ink-accent rounded-full eq-bar-1"></span>
+                        <span class="w-1 bg-paper-accent dark:bg-ink-accent rounded-full eq-bar-2"></span>
+                        <span class="w-1 bg-paper-accent dark:bg-ink-accent rounded-full eq-bar-3"></span>
+                    </div>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                        <span id="playerArticleTitle" class="text-xs sm:text-sm font-bold font-serif truncate text-stone-900 dark:text-stone-100">
+                            論仁、論孝、論君子
+                        </span>
+                        <span id="playerLangBadge" class="text-[10px] px-1.5 py-0.5 rounded bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-300 shrink-0">
+                            廣東話
+                        </span>
+                    </div>
+                    <p id="playerSubStatus" class="text-xs text-stone-500 dark:text-stone-400 truncate">
+                        準備就緒・點擊播放或段落開始聽書
+                    </p>
+                </div>
+            </div>
+
+            <!-- 中間播放控制按鈕 -->
+            <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                <button onclick="skipParagraph(-1)" class="p-2 rounded-xl hover:bg-stone-200/70 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 transition" title="上一段">
+                    <i class="ph-fill ph-skip-back text-lg sm:text-xl"></i>
+                </button>
+                <button id="mainPlayPauseBtn" onclick="togglePlayPause()" class="w-11 h-11 rounded-2xl bg-paper-accent dark:bg-ink-accent text-white flex items-center justify-center shadow-md hover:opacity-95 active:scale-95 transition" title="播放 / 暫停">
+                    <i id="mainPlayPauseIcon" class="ph-fill ph-play text-xl ml-0.5"></i>
+                </button>
+                <button onclick="skipParagraph(1)" class="p-2 rounded-xl hover:bg-stone-200/70 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 transition" title="下一段">
+                    <i class="ph-fill ph-skip-forward text-lg sm:text-xl"></i>
+                </button>
+                <button onclick="stopReading()" class="p-2 rounded-xl hover:bg-stone-200/70 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 transition hidden sm:flex" title="停止">
+                    <i class="ph-fill ph-stop text-lg"></i>
+                </button>
+            </div>
+
+            <!-- 右側語速與連續播放控制 -->
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                <!-- 語速調節 -->
+                <button id="speedBtn" onclick="cycleSpeed()" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-stone-200/80 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-300/70 dark:hover:bg-stone-700 transition border border-stone-300/50 dark:border-stone-700" title="調整朗讀語速">
+                    1.0x
+                </button>
+                <!-- 循環/自動下一篇 -->
+                <button id="autoNextBtn" onclick="toggleAutoNext()" class="p-2 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200/70 dark:hover:bg-stone-800 transition" title="開啟/關閉自動連播下一篇">
+                    <i id="autoNextIcon" class="ph ph-repeat text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮動提示訊息 Toast -->
+    <div id="toastNotice" class="fixed top-20 right-4 z-50 max-w-xs bg-stone-900/95 dark:bg-stone-100/95 text-white dark:text-stone-900 px-4 py-2.5 rounded-xl shadow-lg text-xs sm:text-sm font-medium flex items-center gap-2 pointer-events-none opacity-0 translate-y-[-10px] transition-all duration-300">
+        <i class="ph-fill ph-info text-amber-400 dark:text-amber-600 text-base shrink-0"></i>
+        <span id="toastText">提示訊息</span>
+    </div>
+
+    <script>
+        /**
+         * 12 篇 DSE 指定文言經典精讀完整資料庫
+         * 已根據考評局讀本及附件完整校對，並補齊附件中掃描缺失之古漢字
+         */
+        const DSE_TEXTS = [
+            {
+                id: 1,
+                title: "論仁、論孝、論君子",
+                author: "《論語》",
+                dynasty: "先秦",
+                summary: "透過孔子的言論，闡明儒家「仁」、「孝」及「君子」三大核心概念：仁者安貧樂道、克己復禮、殺身成仁；行孝須心存敬意、禮待父母、幾諫無怨；君子則重義輕利、言行一致、內省不疚、成人之美。",
+                paragraphs: [
+                    { subheading: "【論仁】", text: "1. 子曰：「不仁者，不可以久處約，不可以長處樂。仁者安仁，知者利仁。」（《里仁》第四）" },
+                    { text: "2. 子曰：「富與貴，是人之所欲也；不以其道得之，不處也。貧與賤，是人之所惡也；不以其道得之，不去也。君子去仁，惡乎成名？君子無終食之間違仁，造次必於是，顛沛必於是。」（《里仁》第四）" },
+                    { text: "3. 顏淵問仁。子曰：「克己復禮為仁。一日克己復禮，天下歸仁焉。為仁由己，而由人乎哉？」顏淵曰：「請問其目。」子曰：「非禮勿視，非禮勿聽，非禮勿言，非禮勿動。」顏淵曰：「回雖不敏，請事斯語矣。」（《顏淵》第十二）" },
+                    { text: "4. 子曰：「志士仁人，無求生以害仁，有殺身以成仁。」（《衛靈公》第十五）" },
+                    { subheading: "【論孝】", text: "5. 孟懿子問孝。子曰：「無違。」樊遲御，子告之曰：「孟孫問孝於我，我對曰，無違。」樊遲曰：「何謂也？」子曰：「生事之以禮；死葬之以禮，祭之以禮。」（《為政》第二）" },
+                    { text: "6. 子游問孝。子曰：「今之孝者，是謂能養。至於犬馬，皆能有養；不敬，何以別乎！」（《為政》第二）" },
+                    { text: "7. 子曰：「事父母幾諫，見志不從，又敬不違，勞而不怨。」（《里仁》第四）" },
+                    { text: "8. 子曰：「父母之年，不可不知也。一則以喜，一則以懼。」（《里仁》第四）" },
+                    { subheading: "【論君子】", text: "9. 子曰：「君子不重則不威；學則不固。主忠信。無友不如己者。過則勿憚改。」（《學而》第一）" },
+                    { text: "10. 子曰：「君子坦蕩蕩，小人長戚戚。」（《述而》第七）" },
+                    { text: "11. 司馬牛問君子。子曰：「君子不憂不懼。」曰：「不憂不懼，斯謂之君子矣乎？」子曰：「內省不疚，夫何憂何懼？」（《顏淵》第十二）" },
+                    { text: "12. 子曰：「君子成人之美，不成人之惡。小人反是。」（《顏淵》第十二）" },
+                    { text: "13. 子曰：「君子恥其言而過其行。」（《憲問》第十四）" },
+                    { text: "14. 子曰：「君子義以為質，禮以行之，孫以出之，信以成之。君子哉！」（《衛靈公》第十五）" },
+                    { text: "15. 子曰：「君子病無能焉，不病人之不己知也。」（《衛靈公》第十五）" },
+                    { text: "16. 子曰：「君子求諸己，小人求諸人。」（《衛靈公》第十五）" }
+                ]
+            },
+            {
+                id: 2,
+                title: "魚我所欲也",
+                author: "孟子",
+                dynasty: "先秦",
+                summary: "以「魚」與「熊掌」設喻，引出「生」與「義」不可兼得時當「舍生取義」的論點。文中藉「一簞食、一豆羹」與「萬鍾之祿」作對比，勸勉世人切勿因物慾與名利而喪失羞惡本心。",
+                paragraphs: [
+                    { text: "孟子曰：「魚，我所欲也，熊掌，亦我所欲也；二者不可得兼，舍魚而取熊掌者也。生亦我所欲也，義亦我所欲也；二者不可得兼，舍生而取義者也。生亦我所欲，所欲有甚於生者，故不為苟得也；死亦我所惡，所惡有甚於死者，故患有所不辟也。如使人之所欲莫甚於生，則凡可以得生者，何不用也？使人之所惡莫甚於死者，則凡可以辟患者，何不為也？由是則生而有不用也，由是則可以辟患而有不為也，是故所欲有甚於生者，所惡有甚於死者。非獨賢者有是心也，人皆有之，賢者能勿喪耳。" },
+                    { text: "一簞食，一豆羹，得之則生，弗得則死。嘑爾而與之，行道之人弗受；蹴爾而與之，乞人不屑也；萬鍾則不辯禮義而受之。萬鍾於我何加焉？為宮室之美、妻妾之奉、所識窮乏者得我與？鄉為身死而不受，今為宮室之美為之；鄉為身死而不受，今為妻妾之奉為之；鄉為身死而不受，今為所識窮乏者得我而為之，是亦不可以已乎？此之謂失其本心。」" }
+                ]
+            },
+            {
+                id: 3,
+                title: "逍遙遊（節錄）",
+                author: "莊子",
+                dynasty: "先秦",
+                summary: "透過莊子與惠子關於「五石大瓠」與「大樗之樹」的兩段對話，批評世人受世俗成見束縛（蓬之心），不懂得跳出功利框架「用大」與「無用之用」，從而帶出破除執著、順應自然、逍遙自在的道家哲理。",
+                paragraphs: [
+                    { text: "惠子謂莊子曰：「魏王貽我大瓠之種，我樹之成而實五石。以盛水漿，其堅不能自舉也。剖之以為瓢，則瓠落無所容。非不呺然大也，吾為其無用而掊之。」莊子曰：「夫子固拙於用大矣！宋人有善為不龜手之藥者，世世以洴澼絖為事。客聞之，請買其方百金。聚族而謀曰：『我世世為洴澼絖，不過數金；今一朝而鬻技百金，請與之。』客得之，以說吳王。越有難，吳王使之將，冬與越人水戰，大敗越人，裂地而封之。能不龜手一也；或以封，或不免於洴澼絖，則所用之異也。今子有五石之瓠，何不慮以為大樽而浮於江湖，而憂其瓠落無所容，則夫子猶有蓬之心也夫！」" },
+                    { text: "惠子謂莊子曰：「吾有大樹，人謂之樗；其大本擁腫而不中繩墨，其小枝卷曲而不中規矩。立之塗，匠者不顧。今子之言，大而無用，眾所同去也。」莊子曰：「子獨不見狸狌乎？卑身而伏，以候敖者；東西跳梁，不辟高下，中於機辟，死於罔罟。今夫犛牛，其大若垂天之雲；此能為大矣，而不能執鼠。今子有大樹，患其無用，何不樹之於無何有之鄉，廣莫之野，彷徨乎無為其側，逍遙乎寢臥其下；不夭斤斧，物無害者。無所可用，安所困苦哉？」" }
+                ]
+            },
+            {
+                id: 4,
+                title: "勸學（節錄）",
+                author: "荀子",
+                dynasty: "先秦",
+                summary: "開宗明義提出「學不可以已」的中心論點。透過大量比喻與對比，從學習的意義（改變本性、知明而行無過）、學習的作用（善假於物）及學習的方法與態度（積累、堅持不懈、用心專一）三方面勉勵世人力學不倦。",
+                paragraphs: [
+                    { text: "君子曰：學不可以已。青，取之於藍，而青於藍；冰，水為之，而寒於水。木直中繩，輮以為輪，其曲中規；雖有槁暴、不復挺者，輮使之然也。故木受繩則直，金就礪則利，君子博學而日參省乎己，則知明而行無過矣。" },
+                    { text: "吾嘗終日而思矣，不如須臾之所學也；吾嘗跂而望矣，不如登高之博見也。登高而招，臂非加長也，而見者遠。順風而呼，聲非加疾也，而聞者彰。假輿馬者，非利足也，而致千里；假舟楫者，非能水也，而絕江河。君子生非異也，善假於物也。" },
+                    { text: "積土成山，風雨興焉；積水成淵，蛟龍生焉；積善成德，而神明自得，聖心備焉。故不積跬步，無以至千里；不積小流，無以成江海。騏驥一躍，不能十步；駑馬十駕，功在不舍。鍥而舍之，朽木不折；鍥而不舍，金石可鏤。蚓無爪牙之利，筋骨之強，上食埃土，下飲黃泉，用心一也。蟹六跪而二螯，非蛇之穴無可寄託者，用心躁也。" }
+                ]
+            },
+            {
+                id: 5,
+                title: "廉頗藺相如列傳（節錄）",
+                author: "司馬遷",
+                dynasty: "漢朝",
+                summary: "記述「完璧歸趙」、「澠池之會」及「負荊請罪」三個歷史事件，刻劃藺相如智勇雙全、不畏強權、顧全大局與先國家之急而後私讎的風範，以及廉頗勇於改過、忠於趙國的將相和精神。",
+                paragraphs: [
+                    { text: "廉頗者，趙之良將也。趙惠文王十六年，廉頗為趙將伐齊，大破之，取陽晉，拜為上卿，以勇氣聞於諸侯。藺相如者，趙人也，為趙宦者令繆賢舍人。" },
+                    { text: "趙惠文王時，得楚和氏璧。秦昭王聞之，使人遺趙王書，願以十五城請易璧。趙王與大將軍廉頗諸大臣謀：欲予秦，秦城恐不可得，徒見欺；欲勿予，即患秦兵之來。計未定，求人可使報秦者，未得。宦者令繆賢曰：「臣舍人藺相如可使。」王問：「何以知之？」對曰：「臣嘗有罪，竊計欲亡走燕，臣舍人相如止臣，曰：『君何以知燕王？』臣語曰：『臣嘗從大王與燕王會境上，燕王私握臣手，曰「願結友。」以此知之，故欲往。』相如謂臣曰：『夫趙彊而燕弱，而君幸於趙王，故燕王欲結於君。今君乃亡趙走燕，燕畏趙，其勢必不敢留君，而束君歸趙矣。君不如肉袒伏斧質請罪，則幸得脫矣。』臣從其計，大王亦幸赦臣。臣竊以為其人勇士，有智謀，宜可使。」於是王召見，問藺相如曰：「秦王以十五城請易寡人之璧，可予不？」相如曰：「秦彊而趙弱，不可不許。」王曰：「取吾璧，不予我城，奈何？」相如曰：「秦以城求璧而趙不許，曲在趙；趙予璧而秦不予趙城，曲在秦。均之二策，寧許以負秦曲。」王曰：「誰可使者？」相如曰：「王必無人，臣願奉璧往使。城入趙而璧留秦；城不入，臣請完璧歸趙。」趙王於是遂遣相如奉璧西入秦。" },
+                    { text: "秦王坐章台見相如，相如奉璧奏秦王。秦王大喜，傳以示美人及左右，左右皆呼萬歲。相如視秦王無意償趙城，乃前曰：「璧有瑕，請指示王。」王授璧，相如因持璧，卻立，倚柱，怒髮上衝冠，謂秦王曰：「大王欲得璧，使人發書至趙王，趙王悉召羣臣議，皆曰：『秦貪，負其彊，以空言求璧，償城恐不可得』。議不欲予秦璧。臣以為布衣之交尚不相欺，況大國乎！且以一璧之故逆彊秦之驩，不可。於是趙王乃齋戒五日，使臣奉璧，拜送書於庭。何者？嚴大國之威以修敬也。今臣至，大王見臣列觀，禮節甚倨；得璧，傳之美人，以戲弄臣。臣觀大王無意償趙王城邑，故臣復取璧。大王必欲急臣，臣頭今與璧俱碎於柱矣！」相如持其璧睨柱，欲以擊柱。秦王恐其破璧，乃辭謝固請，召有司案圖，指從此以往十五都予趙。相如度秦王特以詐佯為予趙城，實不可得，乃謂秦王曰：「和氏璧，天下所共傳寶也。趙王恐，不敢不獻。趙王送璧時，齋戒五日，今大王亦宜齋戒五日，設九賓於廷，臣乃敢上璧。」秦王度之，終不可彊奪，遂許齋五日，舍相如廣成傳。相如度秦王雖齋，決負約不償城，乃使其從者衣褐，懷其璧，從徑道亡，歸璧於趙。" },
+                    { text: "秦王齋五日後，乃設九賓禮於廷，引趙使者藺相如。相如至，謂秦王曰：「秦自繆公以來二十餘君，未嘗有堅明約束者也。臣誠恐見欺於王而負趙，故令人持璧歸，間至趙矣。且秦彊而趙弱，大王遣一介之使至趙，趙立奉璧來；今以秦之彊而先割十五都予趙，趙豈敢留璧而得罪於大王乎？臣知欺大王之罪當誅，臣請就湯鑊。唯大王與羣臣孰計議之！」秦王與羣臣相視而嘻。左右或欲引相如去，秦王因曰：「今殺相如，終不能得璧也，而絕秦趙之驩，不如因而厚遇之，使歸趙，趙王豈以一璧之故欺秦邪！」卒廷見相如，畢禮而歸之。相如既歸，趙王以為賢大夫，使不辱於諸侯，拜相如為上大夫。秦亦不以城予趙，趙亦終不予秦璧。" },
+                    { text: "其後秦伐趙，拔石城。明年，復攻趙，殺二萬人。" },
+                    { text: "秦王使使者告趙王，欲與王為好會於西河外澠池。趙王畏秦，欲毋行。廉頗、藺相如計曰：「王不行，示趙弱且怯也。」趙王遂行，相如從。廉頗送至境，與王訣曰：「王行，度道里會遇之禮畢，還，不過三十日。三十日不還，則請立太子為王，以絕秦望。」王許之，遂與秦王會澠池。秦王飲酒酣，曰：「寡人竊聞趙王好音，請奏瑟。」趙王鼓瑟。秦御史前書曰：「某年月日，秦王與趙王會飲，令趙王鼓瑟。」藺相如前曰：「趙王竊聞秦王善為秦聲，請奏盆缻秦王，以相娛樂。」秦王怒，不許。於是相如前進缻，因跪請秦王。秦王不肯擊缻。相如曰：「五步之內，相如請得以頸血濺大王矣！」左右欲刃相如，相如張目叱之，左右皆靡。於是秦王不懌，為一擊缻。相如顧召趙御史書曰：「某年月日，秦王為趙王擊缻。」秦之羣臣曰：「請以趙十五城為秦王壽。」藺相如亦曰：「請以秦之咸陽為趙王壽。」秦王竟酒，終不能加勝於趙。趙亦盛設兵以待秦，秦不敢動。" },
+                    { text: "既罷歸國，以相如功大，拜為上卿，位在廉頗之右。廉頗曰：「我為趙將，有攻城野戰之大功，而藺相如徒以口舌為勞，而位居我上，且相如素賤人，吾羞，不忍為之下。」宣言曰：「我見相如，必辱之。」相如聞，不肯與會。相如每朝時，常稱病，不欲與廉頗爭列。已而相如出，望見廉頗，相如引車避匿。於是舍人相與諫曰：「臣所以去親戚而事君者，徒慕君之高義也。今君與廉頗同列，廉君宣惡言而君畏匿之，恐懼殊甚，且庸人尚羞之，況於將相乎！臣等不肖，請辭去。」藺相如固止之，曰：「公之視廉將軍孰與秦王？」曰：「不若也。」相如曰：「夫以秦王之威，而相如廷叱之，辱其羣臣，相如雖駑，獨畏廉將軍哉？顧吾念之，彊秦之所以不敢加兵於趙者，徒以吾兩人在也。今兩虎共鬥，其勢不俱生。吾所以為此者，以先國家之急而後私讎也。」廉頗聞之，肉袒負荊，因賓客至藺相如門謝罪。曰：「鄙賤之人，不知將軍寬之至此也。」卒相與驩，為刎頸之交。" }
+                ]
+            },
+            {
+                id: 6,
+                title: "出師表",
+                author: "諸葛亮",
+                dynasty: "三國",
+                summary: "諸葛亮北伐前上奏後主劉禪的表文。文中分析蜀漢危急存亡之局勢，勸勉後主「廣開言路」、「嚴明賞罰」及「親賢遠小」，並自述身世與追隨先帝劉備的經過，流露「報先帝而忠陛下」的耿耿忠心。",
+                paragraphs: [
+                    { text: "先帝創業未半，而中道崩殂；今天下三分，益州疲弊，此誠危急存亡之秋也！然侍衛之臣，不懈於內；忠志之士，忘身於外者，蓋追先帝之殊遇，欲報之於陛下也。" },
+                    { text: "誠宜開張聖聽，以光先帝遺德，恢弘志士之氣；不宜妄自菲薄，引喻失義，以塞忠諫之路也。" },
+                    { text: "宮中、府中，俱為一體；陟罰臧否，不宜異同。若有作姦、犯科，及為忠善者，宜付有司，論其刑賞，以昭陛下平明之治；不宜偏私，使內外異法也。" },
+                    { text: "侍中、侍郎郭攸之、費禕、董允等，此皆良實，志慮忠純，是以先帝簡拔以遺陛下。愚以為宮中之事，事無大小，悉以咨之，然後施行，必能裨補闕漏，有所廣益。將軍向寵，性行淑均，曉暢軍事，試用於昔日，先帝稱之曰「能」，是以眾議舉寵為督。愚以為營中之事，悉以咨之，必能使行陣和睦，優劣得所。" },
+                    { text: "親賢臣，遠小人，此先漢所以興隆也；親小人，遠賢臣，此後漢所以傾頹也。先帝在時，每與臣論此事，未嘗不歎息痛恨於桓、靈也！侍中、尚書、長史、參軍，此悉貞良死節之臣，願陛下親之、信之，則漢室之隆，可計日而待也。" },
+                    { text: "臣本布衣，躬耕於南陽，苟全性命於亂世，不求聞達於諸侯。先帝不以臣卑鄙，猥自枉屈，三顧臣於草廬之中，諮臣以當世之事；由是感激，遂許先帝以驅馳。後值傾覆，受任於敗軍之際，奉命於危難之間，爾來二十有一年矣。先帝知臣謹慎，故臨崩寄臣以大事也。受命以來，夙夜憂歎，恐託付不效，以傷先帝之明。故五月渡瀘，深入不毛。今南方已定，兵甲已足，當獎率三軍，北定中原，庶竭駑鈍，攘除姦凶，興復漢室，還於舊都。此臣所以報先帝而忠陛下之職分也。至於斟酌損益，進盡忠言，則攸之、禕、允之任也。" },
+                    { text: "願陛下託臣以討賊興復之效；不效，則治臣之罪，以告先帝之靈。若無興德之言，則責攸之、禕、允等之慢，以彰其咎。陛下亦宜自謀，以諮諏善道，察納雅言，深追先帝遺詔。臣不勝受恩感激。今當遠離，臨表涕零，不知所言！" }
+                ]
+            },
+            {
+                id: 7,
+                title: "師說",
+                author: "韓愈",
+                dynasty: "唐朝",
+                summary: "闡述從師問學之道：提出老師「傳道、受業、解惑」的職責，主張「無貴無賤，無長無少，道之所存，師之所存」及「聞道有先後，術業有專攻」的擇師原則，並藉三組對比批判當時士大夫「恥學於師」的流弊。",
+                paragraphs: [
+                    { text: "古之學者必有師。師者，所以傳道、受業、解惑也。人非生而知之者，孰能無惑？惑而不從師，其為惑也終不解矣。" },
+                    { text: "生乎吾前，其聞道也，固先乎吾，吾從而師之；生乎吾後，其聞道也，亦先乎吾，吾從而師之。吾師道也，夫庸知其年之先後生於吾乎？是故無貴無賤，無長無少，道之所存，師之所存也。" },
+                    { text: "嗟乎！師道之不傳也久矣！欲人之無惑也難矣！古之聖人，其出人也遠矣，猶且從師而問焉；今之眾人，其下聖人也亦遠矣，而恥學於師；是故聖益聖，愚益愚，聖人之所以為聖，愚人之所以為愚，其皆出於此乎！" },
+                    { text: "愛其子，擇師而教之，於其身也則恥師焉，惑矣！彼童子之師，授之書而習其句讀者，非吾所謂傳其道、解其惑者也。句讀之不知，惑之不解，或師焉，或不焉，小學而大遺，吾未見其明也。" },
+                    { text: "巫、醫、樂師、百工之人，不恥相師；士大夫之族，曰師、曰弟子云者，則羣聚而笑之。問之，則曰：「彼與彼年相若也，道相似也。」位卑則足羞，官盛則近諛。嗚呼！師道之不復，可知矣。巫、醫、樂師、百工之人，君子不齒，今其智乃反不能及，其可怪也歟！" },
+                    { text: "聖人無常師，孔子師郯子、萇弘、師襄、老聃。郯子之徒，其賢不及孔子。孔子曰：「三人行，則必有我師。」是故弟子不必不如師，師不必賢於弟子：聞道有先後，術業有專攻，如是而已。" },
+                    { text: "李氏子蟠，年十七，好古文，六藝經傳，皆通習之；不拘於時，學於余。余嘉其能行古道，作《師說》以貽之。" }
+                ]
+            },
+            {
+                id: 8,
+                title: "始得西山宴遊記",
+                author: "柳宗元",
+                dynasty: "唐朝",
+                summary: "記敘作者被貶永州後終日惴慄，寄情山水以排遣憂鬱；直至發現並登上特出高聳的西山，飽覽千里壯闊山川，達到「心凝形釋，與萬化冥合」的物我兩忘境界，從貶謫困頓中獲得精神解脫，故以「始得」為題。",
+                paragraphs: [
+                    { text: "自余為僇人，居是州，恒惴慄。其隙也，則施施而行，漫漫而遊。日與其徒上高山，入深林，窮迴溪，幽泉怪石，無遠不到。到則披草而坐，傾壺而醉。醉則更相枕以臥，臥而夢。意有所極，夢亦同趣。覺而起，起而歸。以為凡是州之山有異態者，皆我有也，而未始知西山之怪特。" },
+                    { text: "今年九月二十八日，因坐法華西亭，望西山，始指異之。遂命僕過湘江，緣染溪，斫榛莽，焚茅茷，窮山之高而止。攀援而登，箕踞而遨，則凡數州之土壤，皆在衽席之下。其高下之勢，岈然洼然，若垤若穴，尺寸千里，攢蹙累積，莫得遯隱。縈青繚白，外與天際，四望如一。然後知是山之特出，不與培塿為類。悠悠乎與灝氣俱，而莫得其涯；洋洋乎與造物者遊，而不知其所窮。引觴滿酌，頹然就醉，不知日之入。蒼然暮色，自遠而至，至無所見，而猶不欲歸。心凝形釋，與萬化冥合。然後知吾嚮之未始遊，遊於是乎始，故為之文以志。是歲元和四年也。" }
+                ]
+            },
+            {
+                id: 9,
+                title: "岳陽樓記",
+                author: "范仲淹",
+                dynasty: "宋朝",
+                summary: "藉重修岳陽樓記敘洞庭湖大觀，描寫遷客騷人於「霪雨霏霏」與「春和景明」兩種景致下「感極而悲」與「其喜洋洋」的覽物之情；進而抒發古仁人「不以物喜，不以己悲」的胸襟，並提出「先天下之憂而憂，後天下之樂而樂」的政治抱負，勉勵友人滕子京。",
+                paragraphs: [
+                    { text: "慶曆四年春，滕子京謫守巴陵郡。越明年，政通人和，百廢具興。乃重修岳陽樓，增其舊制，刻唐賢、今人詩賦於其上；屬予作文以記之。" },
+                    { text: "予觀夫巴陵勝狀，在洞庭一湖。銜遠山，吞長江，浩浩湯湯，橫無際涯；朝暉夕陰，氣象萬千。此則岳陽樓之大觀也，前人之述備矣。然則北通巫峽，南極瀟湘，遷客騷人，多會於此，覽物之情，得無異乎？" },
+                    { text: "若夫霪雨霏霏，連月不開；陰風怒號，濁浪排空；日星隱耀，山岳潛形；商旅不行，檣傾楫摧；薄暮冥冥，虎嘯猿啼。登斯樓也，則有去國懷鄉，憂讒畏譏，滿目蕭然，感極而悲者矣。" },
+                    { text: "至若春和景明，波瀾不驚，上下天光，一碧萬頃；沙鷗翔集，錦鱗游泳，岸芷汀蘭，郁郁青青。而或長煙一空，皓月千里，浮光躍金，靜影沉璧；漁歌互答，此樂何極！登斯樓也，則有心曠神怡，寵辱皆忘，把酒臨風，其喜洋洋者矣。" },
+                    { text: "嗟夫！予嘗求古仁人之心，或異二者之為。何哉？不以物喜，不以己悲。居廟堂之高，則憂其民；處江湖之遠，則憂其君。是進亦憂，退亦憂，然則何時而樂耶？其必曰：「先天下之憂而憂，後天下之樂而樂」乎！噫！微斯人，吾誰與歸！" }
+                ]
+            },
+            {
+                id: 10,
+                title: "六國論",
+                author: "蘇洵",
+                dynasty: "宋朝",
+                summary: "論證「六國破滅，非兵不利，戰不善，弊在賂秦」的中心論點。分別就「賂秦者」（韓、魏、楚）以地事秦猶抱薪救火，與「不賂者」（齊、燕、趙）因失強援而亡加以剖析，藉古諷今，警誡北宋朝廷切勿為外敵積威所劫而苟安納幣。",
+                paragraphs: [
+                    { text: "六國破滅，非兵不利，戰不善，弊在賂秦。賂秦而力虧，破滅之道也。或曰：「六國互喪，率賂秦耶？」曰：「不賂者以賂者喪。」蓋失強援，不能獨完，故曰「弊在賂秦」也。" },
+                    { text: "秦以攻取之外，小則獲邑，大則得城，較秦之所得與戰勝而得者，其實百倍；諸侯之所亡與戰敗而亡者，其實亦百倍。則秦之所大欲，諸侯之所大患，固不在戰矣。思厥先祖父，暴霜露，斬荊棘，以有尺寸之地。子孫視之不甚惜，舉以予人，如棄草芥。今日割五城，明日割十城，然後得一夕安寢；起視四境，而秦兵又至矣。然則諸侯之地有限，暴秦之欲無厭，奉之彌繁，侵之愈急，故不戰而強弱勝負已判矣。至於顛覆，理固宜然。古人云：「以地事秦，猶抱薪救火，薪不盡，火不滅。」此言得之。" },
+                    { text: "齊人未嘗賂秦，終繼五國遷滅，何哉？與嬴而不助五國也。五國既喪，齊亦不免矣。燕趙之君，始有遠略，能守其土，義不賂秦。是故燕雖小國而後亡，斯用兵之效也。至丹以荊卿為計，始速禍焉。趙嘗五戰于秦，二敗而三勝；後秦擊趙者再，李牧連卻之；洎牧以讒誅，邯鄲為郡，惜其用武而不終也。且燕趙處秦革滅殆盡之際，可謂智力孤危，戰敗而亡，誠不得已。向使三國各愛其地，齊人勿附於秦，刺客不行，良將猶在，則勝負之數，存亡之理，當與秦相較，或未易量。" },
+                    { text: "嗚呼！以賂秦之地，封天下之謀臣；以事秦之心，禮天下之奇才；并力西嚮，則吾恐秦人食之不得下嚥也。悲夫！有如此之勢，而為秦人積威之所劫，日削月割，以趨於亡！為國者無使為積威之所劫哉！" },
+                    { text: "夫六國與秦皆諸侯，其勢弱於秦，而猶有可以不賂而勝之之勢；苟以天下之大，而從六國破亡之故事，是又在六國下矣！" }
+                ]
+            },
+            {
+                id: 11,
+                title: "唐詩三首",
+                author: "王維、李白、杜甫",
+                dynasty: "唐朝",
+                summary: "包含三首盛唐名篇：王維《山居秋暝》以詩中有畫描繪秋山雨後清幽晚景，寄託歸隱之志；李白《月下獨酌》奇想邀月與影共飲歌舞，在曠達自得中流露孤高寂寞；杜甫《登樓》融山河壯景與國家多難於一爐，抒發憂國傷時與仰慕諸葛亮之情。",
+                paragraphs: [
+                    { subheading: "《山居秋暝》 王維", text: "空山新雨後，天氣晚來秋。\n明月松間照，清泉石上流。\n竹喧歸浣女，蓮動下漁舟。\n隨意春芳歇，王孫自可留。" },
+                    { subheading: "《月下獨酌（其一）》 李白", text: "花間一壺酒，獨酌無相親。\n舉杯邀明月，對影成三人。\n月既不解飲，影徒隨我身。\n暫伴月將影，行樂須及春。\n我歌月徘徊，我舞影零亂。\n醒時同交歡，醉後各分散。\n永結無情遊，相期邈雲漢。" },
+                    { subheading: "《登樓》 杜甫", text: "花近高樓傷客心，萬方多難此登臨。\n錦江春色來天地，玉壘浮雲變古今。\n北極朝廷終不改，西山寇盜莫相侵。\n可憐後主還祠廟，日暮聊為梁甫吟。" }
+                ]
+            },
+            {
+                id: 12,
+                title: "詞三首",
+                author: "蘇軾、李清照、辛棄疾",
+                dynasty: "宋朝",
+                summary: "包含三闋兩宋名詞：蘇軾《念奴嬌・赤壁懷古》寫赤壁壯闊江山與周瑜雄姿，抒發早生華髮之感慨與曠達情懷；李清照《聲聲慢・秋情》以疊字開篇，藉殘秋景物細訴國破家亡、晚年孤寂之愁；辛棄疾《青玉案・元夕》以元宵繁華反襯「燈火闌珊處」孤高淡泊的美人，寄託自己不與世俗同流合污的品格。",
+                paragraphs: [
+                    { subheading: "《念奴嬌・赤壁懷古》 蘇軾", text: "大江東去，浪淘盡、千古風流人物。故壘西邊，人道是、三國周郎赤壁。亂石穿空，驚濤拍岸，捲起千堆雪。江山如畫，一時多少豪傑！\n遙想公瑾當年，小喬初嫁了，雄姿英發。羽扇綸巾，談笑間、檣櫓灰飛煙滅。故國神遊，多情應笑我，早生華髮。人間如夢，一尊還酹江月。" },
+                    { subheading: "《聲聲慢・秋情》 李清照", text: "尋尋覓覓，冷冷清清，悽悽慘慘戚戚。乍煖還寒時候，最難將息。三杯兩盞淡酒，怎敵他晚來風急！雁過也，正傷心，卻是舊時相識。\n滿地黃花堆積，憔悴損，如今有誰堪摘？守著窗兒，獨自怎生得黑！梧桐更兼細雨，到黃昏、點點滴滴。這次第，怎一箇愁字了得！" },
+                    { subheading: "《青玉案・元夕》 辛棄疾", text: "東風夜放花千樹，更吹落、星如雨。寶馬雕車香滿路。鳳簫聲動，玉壺光轉，一夜魚龍舞。\n蛾兒雪柳黃金縷，笑語盈盈暗香去。眾裏尋他千百度；驀然迴首，那人卻在、燈火闌珊處。" }
+                ]
+            }
+        ];
+
+        // 狀態管理 State
+        let currentArticleId = 1;
+        let currentParagraphIndex = 0;
+        let isPlaying = false;
+        let isPaused = false;
+        let currentLang = 'zh-HK'; // 'zh-HK' 廣東話 | 'zh-CN' 普通話
+        let speechRates = [0.75, 0.9, 1.0, 1.15, 1.3, 1.5];
+        let currentRateIndex = 2; // 預設 1.0x
+        let autoNextArticle = false;
+        let reciteMode = false;
+
+        // 字體大小等級設定
+        const fontSizes = [
+            { label: '小', textClass: 'text-base leading-relaxed', subClass: 'text-sm' },
+            { label: '中', textClass: 'text-lg sm:text-xl leading-loose', subClass: 'text-base' },
+            { label: '大', textClass: 'text-xl sm:text-2xl leading-loose', subClass: 'text-lg' },
+            { label: '特大', textClass: 'text-2xl sm:text-3xl leading-loose', subClass: 'text-xl' }
+        ];
+        let currentFontSizeIndex = 1;
+
+        // 已溫習紀錄 (儲存於 localStorage)
+        let completedIds = [];
+        try {
+            const saved = localStorage.getItem('dse_ch_completed');
+            if (saved) completedIds = JSON.parse(saved);
+        } catch (e) {
+            completedIds = [];
+        }
+
+        // Web Speech API 合成器
+        const synth = window.speechSynthesis;
+        let availableVoices = [];
+        let activeUtterance = null;
+
+        /**
+         * 語音發音校正字典（針對文言文通假字及特殊讀音優化 TTS 朗讀準確度）
+         */
+        function normalizeTextForSpeech(rawText, lang) {
+            let clean = rawText
+                // 移除開頭編號如 "1. ", "16. "
+                .replace(/^\d+\.\s*/, '')
+                // 移除括號出處如 （《里仁》第四）以令朗讀更流暢自然
+                .replace(/（《[^）]+》[^）]*）/g, '');
+
+            if (lang === 'zh-HK') {
+                // 廣東話常見文言特殊讀音輔助替換
+                clean = clean
+                    .replace(/不亦說乎/g, '不亦悅乎')
+                    .replace(/知者利仁/g, '智者利仁')
+                    .replace(/則知明而行無過/g, '則智明而行無過')
+                    .replace(/孫以出之/g, '遜以出之')
+                    .replace(/不辟/g, '不避')
+                    .replace(/辟患/g, '避患')
+                    .replace(/得我與/g, '得我歟')
+                    .replace(/鄉為身死/g, '向為身死')
+                    .replace(/不龜手/g, '不軍手')
+                    .replace(/洴澼絖/g, '平辟纊')
+                    .replace(/輮以為輪/g, '柔以為輪')
+                    .replace(/雖有槁暴/g, '雖又槁僕')
+                    .replace(/君子生非異也/g, '君子性非異也')
+                    .replace(/可予不/g, '可予否')
+                    .replace(/盆缻/g, '盆缶')
+                    .replace(/前進缻/g, '前進缶')
+                    .replace(/擊缻/g, '擊缶')
+                    .replace(/百廢具興/g, '百廢俱興')
+                    .replace(/屬予作文/g, '囑予作文');
+            } else {
+                // 普通話常見文言讀音輔助替換
+                clean = clean
+                    .replace(/知者利仁/g, '智者利仁')
+                    .replace(/則知明而行無過/g, '則智明而行無過')
+                    .replace(/孫以出之/g, '遜以出之')
+                    .replace(/不辟/g, '不避')
+                    .replace(/辟患/g, '避患')
+                    .replace(/鄉為身死/g, '向為身死')
+                    .replace(/不龜手/g, '不均手')
+                    .replace(/君子生非異也/g, '君子性非異也')
+                    .replace(/可予不/g, '可予否')
+                    .replace(/盆缻/g, '盆缶')
+                    .replace(/前進缻/g, '前進缶')
+                    .replace(/擊缻/g, '擊缶')
+                    .replace(/百廢具興/g, '百廢俱興')
+                    .replace(/屬予作文/g, '囑予作文');
+            }
+            return clean;
+        }
+
+        // 載入系統語音列表
+        function loadVoices() {
+            if (!synth) return;
+            availableVoices = synth.getVoices();
+        }
+        if (synth) {
+            loadVoices();
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadVoices;
+            }
+        }
+
+        // 根據廣東話或普通話挑選最合適的系統語音
+        function pickBestVoice(langCode) {
+            if (!availableVoices || availableVoices.length === 0) {
+                availableVoices = synth ? synth.getVoices() : [];
+            }
+            if (langCode === 'zh-HK') {
+                // 優先尋找 zh-HK / yue-HK / 廣東話 / Cantonese
+                return availableVoices.find(v => v.lang.toLowerCase() === 'zh-hk' && (v.name.includes('Natural') || v.name.includes('Premium') || v.name.includes('Sin-ji') || v.name.includes('HiuGaai')))
+                    || availableVoices.find(v => v.lang.toLowerCase().includes('hk') || v.lang.toLowerCase().includes('yue') || v.name.toLowerCase().includes('cantonese') || v.name.includes('粵') || v.name.includes('廣東'))
+                    || null;
+            } else {
+                // 普通話優先尋找 zh-CN / zh-TW
+                return availableVoices.find(v => (v.lang.toLowerCase() === 'zh-cn' || v.lang.toLowerCase() === 'zh-tw') && (v.name.includes('Natural') || v.name.includes('Xiaoxiao') || v.name.includes('Ting-Ting')))
+                    || availableVoices.find(v => v.lang.toLowerCase() === 'zh-cn' || v.lang.toLowerCase() === 'zh-tw' || v.lang.toLowerCase().startsWith('zh'))
+                    || null;
+            }
+        }
+
+        // 渲染左側 12 篇範文列表
+        function renderSidebarList(filterQuery = '') {
+            const container = document.getElementById('textListContainer');
+            const q = filterQuery.trim().toLowerCase();
+
+            const filtered = DSE_TEXTS.filter(item => {
+                if (!q) return true;
+                const matchTitle = item.title.toLowerCase().includes(q);
+                const matchAuthor = item.author.toLowerCase().includes(q);
+                const matchContent = item.paragraphs.some(p => p.text.toLowerCase().includes(q) || (p.subheading && p.subheading.toLowerCase().includes(q)));
+                return matchTitle || matchAuthor || matchContent;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 px-4 text-stone-400 dark:text-stone-500 text-sm">
+                        <i class="ph ph-magnifying-glass text-2xl mb-1 block mx-auto"></i>
+                        找不到符合「${filterQuery}」的範文或文句
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => {
+                const isSelected = item.id === currentArticleId;
+                const isDone = completedIds.includes(item.id);
+                const isCurrentlyPlaying = isSelected && isPlaying;
+
+                return `
+                    <button onclick="selectArticle(${item.id})" class="w-full text-left p-3 rounded-xl transition-all flex items-start gap-3 group ${
+                        isSelected 
+                            ? 'bg-paper-accent text-white dark:bg-ink-accent shadow-xs' 
+                            : 'hover:bg-stone-200/70 dark:hover:bg-stone-800/80 text-stone-800 dark:text-stone-200'
+                    }">
+                        <span class="w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 ${
+                            isSelected
+                                ? 'bg-white/20 text-white'
+                                : 'bg-stone-200 dark:bg-stone-800 text-stone-600 dark:text-stone-400'
+                        }">
+                            ${item.id}
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-1">
+                                <h3 class="font-serif font-bold text-sm truncate">${item.title}</h3>
+                                <div class="flex items-center gap-1 shrink-0">
+                                    ${isCurrentlyPlaying ? `<i class="ph-fill ph-speaker-high text-xs animate-pulse"></i>` : ''}
+                                    ${isDone ? `<i class="ph-fill ph-check-circle text-sm ${isSelected ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}" title="已溫習"></i>` : ''}
+                                </div>
+                            </div>
+                            <p class="text-xs truncate mt-0.5 ${
+                                isSelected ? 'text-white/80' : 'text-stone-500 dark:text-stone-400'
+                            }">
+                                ${item.dynasty}・${item.author}
+                            </p>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            // 更新已溫習進度統計
+            document.getElementById('readProgressBadge').textContent = `已溫習 ${completedIds.length}/12`;
+        }
+
+        // 渲染當前選中的範文內容
+        function renderCurrentArticle() {
+            const article = DSE_TEXTS.find(a => a.id === currentArticleId) || DSE_TEXTS[0];
+            const fontConfig = fontSizes[currentFontSizeIndex];
+
+            document.getElementById('articleNumberBadge').textContent = `第 ${article.id} 篇`;
+            document.getElementById('articleDynastyBadge').textContent = article.dynasty;
+            document.getElementById('articleTitle').textContent = article.title;
+            document.getElementById('articleAuthor').textContent = article.author;
+            document.getElementById('articleSummary').textContent = article.summary;
+            document.getElementById('paragraphCountInfo').textContent = `共 ${article.paragraphs.length} 段`;
+            document.getElementById('playerArticleTitle').textContent = article.title;
+
+            // 更新「已溫習」按鈕狀態
+            const isDone = completedIds.includes(article.id);
+            const markBtn = document.getElementById('markCompletedBtn');
+            const markIcon = document.getElementById('markCompletedIcon');
+            const markText = document.getElementById('markCompletedText');
+            if (isDone) {
+                markBtn.className = "px-3 py-1 rounded-xl text-xs font-semibold bg-emerald-600/15 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300 border border-emerald-600/30 flex items-center gap-1.5 transition";
+                markIcon.className = "ph-fill ph-check-circle text-base";
+                markText.textContent = "已溫習";
+            } else {
+                markBtn.className = "px-3 py-1 rounded-xl text-xs font-medium border border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-300 flex items-center gap-1.5 hover:bg-stone-100 dark:hover:bg-stone-800 transition";
+                markIcon.className = "ph ph-check-circle text-base";
+                markText.textContent = "標記已溫習";
+            }
+
+            // 渲染正文段落
+            const contentEl = document.getElementById('articleContent');
+            contentEl.innerHTML = article.paragraphs.map((para, idx) => {
+                const isActive = isPlaying && idx === currentParagraphIndex;
+                const formattedText = para.text.replace(/\n/g, '<br>');
+
+                return `
+                    <div id="para-block-${idx}" onclick="onParagraphClick(${idx}, event)" class="group relative rounded-xl p-3 sm:p-4 -mx-2 sm:-mx-3 cursor-pointer hover:bg-stone-100/80 dark:hover:bg-stone-800/50 transition-all ${isActive ? 'para-active' : ''}">
+                        ${para.subheading ? `
+                            <div class="font-bold text-paper-accent dark:text-ink-accent ${fontConfig.subClass} mb-2 flex items-center justify-between">
+                                <span>${para.subheading}</span>
+                            </div>
+                        ` : ''}
+                        <div class="flex items-start justify-between gap-3">
+                            <p id="para-text-${idx}" class="para-text ${fontConfig.textClass} text-stone-800 dark:text-stone-100 tracking-wide flex-1">
+                                ${formattedText}
+                            </p>
+                            <button onclick="event.stopPropagation(); speakParagraph(${idx});" class="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-lg bg-stone-200/70 dark:bg-stone-700 text-stone-600 dark:text-stone-300 hover:text-paper-accent dark:hover:text-ink-accent transition shrink-0 mt-1" title="朗讀此段">
+                                <i class="ph-fill ph-speaker-simple-high text-base"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 更新上/下一篇導航按鈕
+            const prevArticle = DSE_TEXTS.find(a => a.id === currentArticleId - 1);
+            const nextArticle = DSE_TEXTS.find(a => a.id === currentArticleId + 1);
+
+            const prevBtn = document.getElementById('prevArticleBtn');
+            const nextBtn = document.getElementById('nextArticleBtn');
+
+            if (prevArticle) {
+                prevBtn.disabled = false;
+                prevBtn.classList.remove('opacity-40', 'pointer-events-none');
+                document.getElementById('prevArticleTitle').textContent = `${prevArticle.id}. ${prevArticle.title}`;
+            } else {
+                prevBtn.disabled = true;
+                prevBtn.classList.add('opacity-40', 'pointer-events-none');
+                document.getElementById('prevArticleTitle').textContent = '已是第一篇';
+            }
+
+            if (nextArticle) {
+                nextBtn.disabled = false;
+                nextBtn.classList.remove('opacity-40', 'pointer-events-none');
+                document.getElementById('nextArticleTitle').textContent = `${nextArticle.id}. ${nextArticle.title}`;
+            } else {
+                nextBtn.disabled = true;
+                nextBtn.classList.add('opacity-40', 'pointer-events-none');
+                document.getElementById('nextArticleTitle').textContent = '已是最後一篇';
+            }
+
+            updateAudioProgressUI();
+        }
+
+        // 點擊段落行為：如果在背誦遮罩模式，先顯示文字並朗讀
+        function onParagraphClick(idx, event) {
+            if (reciteMode) {
+                const textEl = document.getElementById(`para-text-${idx}`);
+                if (textEl) textEl.classList.toggle('revealed');
+            }
+            speakParagraph(idx);
+        }
+
+        // 切換篇章
+        function selectArticle(id, autoPlayAfterSelect = false) {
+            stopReading();
+            currentArticleId = id;
+            currentParagraphIndex = 0;
+            renderSidebarList(document.getElementById('searchInput').value);
+            renderCurrentArticle();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // 若在手機版打開了側邊欄，選取後自動收起
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar.classList.contains('-translate-x-full') && window.innerWidth < 1024) {
+                toggleMobileSidebar();
+            }
+
+            if (autoPlayAfterSelect) {
+                setTimeout(() => speakParagraph(0), 250);
+            }
+        }
+
+        // 上一篇 / 下一篇切換
+        function navigateArticle(direction) {
+            const targetId = currentArticleId + direction;
+            if (targetId >= 1 && targetId <= DSE_TEXTS.length) {
+                selectArticle(targetId);
+            }
+        }
+
+        // 從頭播放當前篇章
+        function playFromStart() {
+            speakParagraph(0);
+        }
+
+        // 朗讀指定段落
+        function speakParagraph(index) {
+            if (!synth) {
+                showToast("你的瀏覽器不支援語音朗讀功能");
+                return;
+            }
+
+            const article = DSE_TEXTS.find(a => a.id === currentArticleId);
+            if (!article || index < 0 || index >= article.paragraphs.length) {
+                stopReading();
+                return;
+            }
+
+            // 取消現有語音
+            synth.cancel();
+
+            currentParagraphIndex = index;
+            isPlaying = true;
+            isPaused = false;
+
+            const para = article.paragraphs[index];
+            const rawToRead = (para.subheading ? para.subheading + '。' : '') + para.text;
+            const processedText = normalizeTextForSpeech(rawToRead, currentLang);
+
+            const utterance = new SpeechSynthesisUtterance(processedText);
+            activeUtterance = utterance;
+
+            const selectedVoice = pickBestVoice(currentLang);
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+                utterance.lang = selectedVoice.lang;
+            } else {
+                utterance.lang = currentLang;
+            }
+
+            utterance.rate = speechRates[currentRateIndex];
+            utterance.pitch = 1.0;
+
+            utterance.onstart = () => {
+                isPlaying = true;
+                isPaused = false;
+                highlightActiveParagraph(index);
+                updatePlayerControlsUI();
+                updateAudioProgressUI();
+            };
+
+            utterance.onend = () => {
+                // 自動進入下一段
+                if (isPlaying && !isPaused) {
+                    if (currentParagraphIndex + 1 < article.paragraphs.length) {
+                        speakParagraph(currentParagraphIndex + 1);
+                    } else {
+                        // 全篇朗讀完畢，自動標記已溫習
+                        if (!completedIds.includes(currentArticleId)) {
+                            completedIds.push(currentArticleId);
+                            saveCompletedIds();
+                        }
+                        if (autoNextArticle && currentArticleId < DSE_TEXTS.length) {
+                            showToast(`即將自動播放下一篇：《${DSE_TEXTS[currentArticleId].title}》`);
+                            selectArticle(currentArticleId + 1, true);
+                        } else {
+                            stopReading();
+                            showToast(`《${article.title}》全文朗讀完畢！`);
+                        }
+                    }
+                }
+            };
+
+            utterance.onerror = (e) => {
+                if (e.error !== 'interrupted' && e.error !== 'canceled') {
+                    stopReading();
+                }
+            };
+
+            synth.speak(utterance);
+            highlightActiveParagraph(index);
+            updatePlayerControlsUI();
+            updateAudioProgressUI();
+        }
+
+        // 高亮並滾動至正在朗讀的段落
+        function highlightActiveParagraph(index) {
+            const article = DSE_TEXTS.find(a => a.id === currentArticleId);
+            if (!article) return;
+
+            article.paragraphs.forEach((_, idx) => {
+                const block = document.getElementById(`para-block-${idx}`);
+                if (!block) return;
+                if (idx === index && isPlaying) {
+                    block.classList.add('para-active');
+                } else {
+                    block.classList.remove('para-active');
+                }
+            });
+
+            const activeBlock = document.getElementById(`para-block-${index}`);
+            if (activeBlock && isPlaying) {
+                const rect = activeBlock.getBoundingClientRect();
+                const viewHeight = window.innerHeight;
+                if (rect.top < 90 || rect.bottom > viewHeight - 120) {
+                    activeBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            renderSidebarList(document.getElementById('searchInput').value);
+        }
+
+        // 播放 / 暫停切換
+        function togglePlayPause() {
+            if (!synth) return;
+
+            if (!isPlaying) {
+                speakParagraph(currentParagraphIndex);
+            } else if (isPaused) {
+                synth.resume();
+                isPaused = false;
+                // 部分行動瀏覽器 resume 無效時自動重讀該段
+                setTimeout(() => {
+                    if (!synth.speaking) {
+                        speakParagraph(currentParagraphIndex);
+                    }
+                }, 150);
+                updatePlayerControlsUI();
+            } else {
+                synth.pause();
+                isPaused = true;
+                updatePlayerControlsUI();
+            }
+        }
+
+        // 停止朗讀
+        function stopReading() {
+            if (synth) synth.cancel();
+            isPlaying = false;
+            isPaused = false;
+            highlightActiveParagraph(-1);
+            updatePlayerControlsUI();
+            updateAudioProgressUI();
+        }
+
+        // 上一段 / 下一段跳轉
+        function skipParagraph(delta) {
+            const article = DSE_TEXTS.find(a => a.id === currentArticleId);
+            if (!article) return;
+            const nextIdx = currentParagraphIndex + delta;
+            if (nextIdx >= 0 && nextIdx < article.paragraphs.length) {
+                speakParagraph(nextIdx);
+            } else if (nextIdx < 0) {
+                showToast("已經是第一段");
+            } else {
+                showToast("已經是最後一段");
+            }
+        }
+
+        // 點擊底部進度條跳轉段落
+        function seekParagraphByBar(event) {
+            const article = DSE_TEXTS.find(a => a.id === currentArticleId);
+            if (!article) return;
+            const rect = event.currentTarget.getBoundingClientRect();
+            const clickRatio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+            const targetIdx = Math.floor(clickRatio * article.paragraphs.length);
+            speakParagraph(targetIdx);
+        }
+
+        // 更新底部播放器 UI 狀態
+        function updatePlayerControlsUI() {
+            const playPauseIcon = document.getElementById('mainPlayPauseIcon');
+            const stateIcon = document.getElementById('playerStateIcon');
+            const eqBars = document.getElementById('equalizerBars');
+            const subStatus = document.getElementById('playerSubStatus');
+            const article = DSE_TEXTS.find(a => a.id === currentArticleId);
+
+            if (isPlaying && !isPaused) {
+                playPauseIcon.className = "ph-fill ph-pause text-xl";
+                stateIcon.classList.add('hidden');
+                eqBars.classList.remove('hidden');
+                eqBars.classList.add('flex');
+                subStatus.textContent = `正在朗讀：第 ${currentParagraphIndex + 1} / ${article.paragraphs.length} 段`;
+            } else if (isPlaying && isPaused) {
+                playPauseIcon.className = "ph-fill ph-play text-xl ml-0.5";
+                stateIcon.classList.remove('hidden');
+                eqBars.classList.add('hidden');
+                eqBars.classList.remove('flex');
+                subStatus.textContent = `已暫停（第 ${currentParagraphIndex + 1} / ${article.paragraphs.length} 段）`;
+            } else {
+                playPauseIcon.className = "ph-fill ph-play text-xl ml-0.5";
+                stateIcon.classList.remove('hidden');
+                eqBars.classList.add('hidden');
+                eqBars.classList.remove('flex');
+                subStatus.textContent = `準備就緒・點擊段落或播放鍵即可聽書`;
+            }
+        }
+
+        // 更新進度條百分比
+        function updateAudioProgressUI() {
+            const article = DSE_TEXTS.find(a => a.id === currentArticleId);
+            const bar = document.getElementById('audioProgressBar');
+            if (!article || !bar) return;
+
+            if (!isPlaying) {
+                bar.style.width = '0%';
+            } else {
+                const percent = ((currentParagraphIndex + 1) / article.paragraphs.length) * 100;
+                bar.style.width = `${percent}%`;
+            }
+        }
+
+        // 切換廣東話 / 普通話
+        function setLanguage(langCode) {
+            currentLang = langCode;
+            const btnHK = document.getElementById('langCantonese');
+            const btnCN = document.getElementById('langMandarin');
+            const badge = document.getElementById('playerLangBadge');
+
+            if (langCode === 'zh-HK') {
+                btnHK.className = "px-2.5 py-1 rounded-lg transition-all bg-white dark:bg-stone-700 text-paper-accent dark:text-ink-accent shadow-sm font-semibold";
+                btnCN.className = "px-2.5 py-1 rounded-lg transition-all text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200";
+                badge.textContent = "廣東話";
+                showToast("已切換至：廣東話朗讀");
+            } else {
+                btnCN.className = "px-2.5 py-1 rounded-lg transition-all bg-white dark:bg-stone-700 text-paper-accent dark:text-ink-accent shadow-sm font-semibold";
+                btnHK.className = "px-2.5 py-1 rounded-lg transition-all text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200";
+                badge.textContent = "普通話";
+                showToast("已切換至：普通話朗讀");
+            }
+
+            // 若正在播放，即時以新語言重讀當前段落
+            if (isPlaying && !isPaused) {
+                speakParagraph(currentParagraphIndex);
+            }
+        }
+
+        // 切換語速
+        function cycleSpeed() {
+            currentRateIndex = (currentRateIndex + 1) % speechRates.length;
+            const rate = speechRates[currentRateIndex];
+            document.getElementById('speedBtn').textContent = `${rate}x`;
+            showToast(`朗讀語速已設為 ${rate}x`);
+
+            if (isPlaying && !isPaused) {
+                speakParagraph(currentParagraphIndex);
+            }
+        }
+
+        // 切換自動連播下一篇
+        function toggleAutoNext() {
+            autoNextArticle = !autoNextArticle;
+            const btn = document.getElementById('autoNextBtn');
+            if (autoNextArticle) {
+                btn.className = "p-2 rounded-xl bg-paper-accent/15 dark:bg-ink-accent/25 text-paper-accent dark:text-ink-accent transition";
+                showToast("已開啟：讀完自動連播下一篇");
+            } else {
+                btn.className = "p-2 rounded-xl text-stone-500 dark:text-stone-400 hover:bg-stone-200/70 dark:hover:bg-stone-800 transition";
+                showToast("已關閉自動連播");
+            }
+        }
+
+        // 調整字體大小
+        function changeFontSize(delta) {
+            const nextIndex = currentFontSizeIndex + delta;
+            if (nextIndex < 0 || nextIndex >= fontSizes.length) {
+                showToast(nextIndex < 0 ? "已是最小字體" : "已是最大字體");
+                return;
+            }
+            currentFontSizeIndex = nextIndex;
+            const config = fontSizes[currentFontSizeIndex];
+            document.getElementById('fontSizeIndicator').textContent = config.label;
+            renderCurrentArticle();
+            showToast(`字體大小：${config.label}`);
+        }
+
+        // 切換背誦遮罩模式
+        function toggleReciteMode() {
+            reciteMode = !reciteMode;
+            const contentEl = document.getElementById('articleContent');
+            const btn = document.getElementById('reciteModeBtn');
+            const icon = document.getElementById('reciteIcon');
+
+            if (reciteMode) {
+                contentEl.classList.add('recite-mode');
+                btn.className = "p-2 sm:px-3 sm:py-1.5 rounded-xl bg-paper-accent text-white dark:bg-ink-accent transition flex items-center gap-1.5 text-xs sm:text-sm font-medium shadow-xs";
+                icon.className = "ph-fill ph-eye text-lg";
+                showToast("已開啟背誦模式：內文已遮蓋，點擊或朗讀段落即可顯示");
+            } else {
+                contentEl.classList.remove('recite-mode');
+                btn.className = "p-2 sm:px-3 sm:py-1.5 rounded-xl border border-stone-300/80 dark:border-stone-700 hover:bg-stone-200/60 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 transition flex items-center gap-1.5 text-xs sm:text-sm font-medium";
+                icon.className = "ph ph-eye-slash text-lg";
+                showToast("已關閉背誦模式");
+            }
+        }
+
+        // 切換黑 / 白模式
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            const isDark = htmlEl.classList.toggle('dark');
+
+            if (isDark) {
+                icon.className = "ph-fill ph-sun text-lg sm:text-xl";
+                localStorage.setItem('dse_ch_theme', 'dark');
+                showToast("已切換至深色護眼模式");
+            } else {
+                icon.className = "ph ph-moon text-lg sm:text-xl";
+                localStorage.setItem('dse_ch_theme', 'light');
+                showToast("已切換至淺色紙本模式");
+            }
+        }
+
+        // 標記已溫習
+        function toggleMarkCompleted() {
+            const idx = completedIds.indexOf(currentArticleId);
+            if (idx > -1) {
+                completedIds.splice(idx, 1);
+                showToast("已取消溫習標記");
+            } else {
+                completedIds.push(currentArticleId);
+                showToast("已標記為「已溫習」！");
+            }
+            saveCompletedIds();
+            renderSidebarList(document.getElementById('searchInput').value);
+            renderCurrentArticle();
+        }
+
+        function saveCompletedIds() {
+            try {
+                localStorage.setItem('dse_ch_completed', JSON.stringify(completedIds));
+            } catch (e) {}
+        }
+
+        // 搜尋過濾功能
+        function handleSearch(val) {
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (val.trim().length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderSidebarList(val);
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            handleSearch('');
+            input.focus();
+        }
+
+        // 手機版側邊目錄開關
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            const isHidden = sidebar.classList.contains('-translate-x-full');
+
+            if (isHidden) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        // 顯示 Toast 提示
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById('toastNotice');
+            const text = document.getElementById('toastText');
+            text.textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-[-10px]');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 2200);
+        }
+
+        // 頁面卸載時停止語音
+        window.addEventListener('beforeunload', () => {
+            if (synth) synth.cancel();
+        });
+
+        // 初始化應用程式
+        window.onload = function () {
+            // 載入儲存的主題偏好
+            const savedTheme = localStorage.getItem('dse_ch_theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').className = "ph-fill ph-sun text-lg sm:text-xl";
+            }
+
+            renderSidebarList();
+            renderCurrentArticle();
+        };
+    </script>
+</body>
+</html>
